@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "check": "prettier --check .",
+    "dev": "next dev --turbopack",
+    "format": "prettier --write .",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -20,12 +22,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
     "postcss": "^8",
+    "prettier": "^3.4.2",
+    "prettier-plugin-pkg": "^0.18.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
