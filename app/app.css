@@ -13,3 +13,27 @@ body {
     color-scheme: dark;
   }
 }
+
+/* Rainbow text effect for Rolan */
+.rainbow-text {
+  background: linear-gradient(
+    109deg,
+    rgba(191,87,0,1) 0%,
+    rgba(229,50,56,1) 22%,
+    rgba(40,103,178,1) 100%
+  ) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  color: transparent !important;
+  animation: rainbow-rotate 10s linear infinite !important;
+}
+
+/* Slow rotation animation for rainbow gradient */
+@keyframes rainbow-rotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(-360deg);
+  }
+}
