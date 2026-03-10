@@ -33,10 +33,18 @@ npm run preview
 Builds and previews the production version locally
 
 ### Deploy to Cloudflare
+
+**Option 1: Automated CI/CD (Recommended)**
+Push changes to the `main` branch via pull request. GitHub Actions will automatically:
+1. Build the project
+2. Deploy to Cloudflare Workers
+3. Make it live at rolan.dev
+
+**Option 2: Manual Deployment**
 ```bash
 npm run deploy
 ```
-Builds and deploys directly to production via Wrangler
+Builds and deploys directly to production via Wrangler. Requires `CLOUDFLARE_API_TOKEN` environment variable to be set. See [Deployment Setup](#deployment-setup) below.
 
 ### Generate Cloudflare Types
 ```bash
@@ -114,6 +122,70 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`):
 4. Deploys to Cloudflare Workers using Wrangler action
 5. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets
 
+## Deployment Setup
+
+### CI/CD Workflow (Recommended)
+The project uses GitHub Actions for automatic deployment to production:
+
+1. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature-name
+   ```
+
+2. **Make Changes and Commit**
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   ```
+
+3. **Push to GitHub**
+   ```bash
+   git push -u origin feature-name
+   ```
+
+4. **Create Pull Request**
+   Visit the URL provided in the push output, or manually create a PR at:
+   ```
+   https://github.com/tcorley/portfolio/pull/new/feature-name
+   ```
+
+5. **Merge to Main**
+   Once the PR is approved and merged to `main`, GitHub Actions automatically:
+   - Runs `npm run build`
+   - Deploys to Cloudflare Workers
+   - Makes changes live at rolan.dev
+
+### Manual Deployment Setup
+For direct deployment using `npm run deploy`:
+
+1. **Get Cloudflare API Token**
+   - Visit https://dash.cloudflare.com/profile/api-tokens
+   - Click "Create Token"
+   - Use "Edit Cloudflare Workers" template
+   - Copy the generated token
+
+2. **Set Environment Variable**
+   ```bash
+   export CLOUDFLARE_API_TOKEN=your_token_here
+   ```
+
+   For permanent setup, add to your shell profile (`~/.zshrc`, `~/.bashrc`, etc.):
+   ```bash
+   echo 'export CLOUDFLARE_API_TOKEN=your_token_here' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+3. **Deploy**
+   ```bash
+   npm run deploy
+   ```
+
+**Note:** The CI/CD workflow (Option 1) is recommended as it:
+- Requires no local API token setup
+- Runs in a consistent environment
+- Provides deployment history and rollback capability
+- Prevents accidental production deployments
+
 ## Common Development Patterns
 
 ### Adding a New Route
@@ -127,3 +199,35 @@ Dark mode is automatically applied based on `prefers-color-scheme`. Use Tailwind
 
 ### Meta Tags and SEO
 Define meta tags in route files using the `meta` export function. See `app/routes/home.tsx` for comprehensive example including Open Graph and Twitter Card tags.
+
+## Troubleshooting
+
+### Deployment Issues
+
+**Error: "CLOUDFLARE_API_TOKEN environment variable" required**
+- This occurs when trying to run `npm run deploy` without the token set
+- **Solution**: Either set up the token (see [Manual Deployment Setup](#manual-deployment-setup)) or use the CI/CD workflow by creating a PR
+
+**GitHub CLI (gh) not available**
+- The `gh` CLI tool may not be installed locally
+- **Solution**: Create PRs manually by visiting the URL shown after `git push`, or install gh:
+  ```bash
+  # macOS
+  brew install gh
+
+  # Authenticate
+  gh auth login
+  ```
+
+**Build fails during deployment**
+- Ensure `npm run typecheck` passes locally before pushing
+- Check GitHub Actions logs for detailed error messages
+- Common issues:
+  - TypeScript errors: Run `npm run typecheck` to catch them early
+  - Missing dependencies: Run `npm install` to ensure all deps are installed
+  - Route configuration: Verify routes are properly registered in `app/routes.ts`
+
+**Changes not appearing after merge**
+- GitHub Actions deployment takes 1-2 minutes after merge
+- Check the Actions tab on GitHub to see deployment status
+- Cloudflare may cache content; try hard refresh (Cmd+Shift+R / Ctrl+F5)
