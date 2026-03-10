@@ -61,6 +61,7 @@ interface MahjongHand {
   exposure: "concealed" | "exposed";
   notes?: string;
   id?: string; // Unique identifier for tracking/favorites
+  suitType?: "single" | "multi" | "any"; // Suit requirement indicator
 }
 
 interface YearCard {
@@ -99,6 +100,7 @@ const CARDS_BY_YEAR: YearCard[] = [
             value: 30,
             exposure: "exposed",
             notes: "Three-suit hand with 2025, pungs of 2s & 5s, Dragon kong",
+            suitType: "multi",
           },
           {
             category: "2025",
@@ -146,6 +148,7 @@ const CARDS_BY_YEAR: YearCard[] = [
             value: 25,
             exposure: "exposed",
             notes: "One-suit with 3 Flowers",
+            suitType: "single",
           },
           {
             category: "2468",
@@ -299,6 +302,7 @@ const CARDS_BY_YEAR: YearCard[] = [
             value: 25,
             exposure: "exposed",
             notes: "3 Flowers + 3 kongs (one suit)",
+            suitType: "single",
           },
           {
             category: "13579",
@@ -1072,6 +1076,30 @@ export default function MahjongRoute() {
           </div>
         )}
 
+        {/* Suit Type Legend */}
+        <div className="mb-4 sm:mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200 mb-2 font-medium">
+            Understanding Suit Requirements:
+          </p>
+          <div className="flex flex-wrap gap-3 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 font-medium">
+                1 Suit
+              </span>
+              <span className="text-blue-700 dark:text-blue-300">All numbers from one suit</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
+                Multi-Suit
+              </span>
+              <span className="text-blue-700 dark:text-blue-300">Requires multiple suits</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-blue-700 dark:text-blue-300 italic">No badge = Flexible (any suit configuration)</span>
+            </div>
+          </div>
+        </div>
+
         {/* Controls */}
         <div className="mb-6 sm:mb-8">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1377,13 +1405,35 @@ export default function MahjongRoute() {
                               </code>
                             </div>
                             <div className="flex gap-2 sm:gap-3 items-center flex-shrink-0">
-                              <div className="flex gap-3 text-xs sm:text-sm">
+                              <div className="flex gap-2 sm:gap-3 text-xs sm:text-sm flex-wrap items-center">
                                 <span className="text-gray-600 dark:text-gray-400">
                                   Value: <strong className="text-gray-900 dark:text-white">{hand.value}</strong>
                                 </span>
                                 <span className="text-gray-600 dark:text-gray-400 capitalize">
                                   {hand.exposure}
                                 </span>
+                                {hand.suitType && (
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                      hand.suitType === "single"
+                                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                        : hand.suitType === "multi"
+                                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                    }`}
+                                    title={
+                                      hand.suitType === "single"
+                                        ? "All number tiles must be from one suit"
+                                        : hand.suitType === "multi"
+                                        ? "Requires tiles from multiple suits"
+                                        : "Can be completed with any suit configuration"
+                                    }
+                                  >
+                                    {hand.suitType === "single" && "1 Suit"}
+                                    {hand.suitType === "multi" && "Multi-Suit"}
+                                    {hand.suitType === "any" && "Any Suit"}
+                                  </span>
+                                )}
                               </div>
                               <button
                                 onClick={() => toggleTracked(handId)}
