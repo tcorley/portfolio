@@ -1,0 +1,162 @@
+# Cursor Agent Rules for Portfolio Project
+
+## Project Overview
+This is a personal portfolio website built with React Router v7, TypeScript, and Tailwind CSS, deployed on Cloudflare Workers.
+
+## Technology Stack
+- **Framework:** React Router v7 (with React 19)
+- **Runtime:** Cloudflare Workers
+- **Language:** TypeScript 5.9+
+- **Styling:** Tailwind CSS v4
+- **Icons:** Lucide React, Simple Icons (via @icons-pack/react-simple-icons)
+- **Build Tool:** Vite 7
+- **Deployment:** Cloudflare Workers (Wrangler)
+
+## Code Style Guidelines
+
+### TypeScript
+- Use strict TypeScript with type safety
+- Leverage React Router's generated route types (`Route.MetaArgs`, `Route.HeadersArgs`, etc.)
+- Use TypeScript interfaces and types for component props
+- Prefer explicit typing over `any`
+
+### React Components
+- Use functional components with TypeScript
+- Follow React Router v7 conventions (meta functions, route exports)
+- Use descriptive component and prop names
+- Keep components focused and reusable
+- Extract shared logic into custom hooks when appropriate
+
+### File Organization
+- Routes in `app/routes/` directory
+- Reusable components in `app/components/` directory
+- Main page-specific components in `app/main/` directory
+- Worker entry point in `workers/app.ts`
+- Static assets in `public/` directory
+
+### Styling with Tailwind CSS
+- Use Tailwind utility classes (v4 syntax)
+- Leverage responsive breakpoints: `md:`, `lg:`, etc.
+- Support dark mode with `dark:` variants
+- Use consistent spacing and typography scale
+- Prefer utility classes over custom CSS when possible
+- Use custom CSS classes for complex animations or gradients (e.g., `rainbow-text`)
+
+### Component Patterns
+- Export components as named exports
+- Use TypeScript props interfaces/types
+- Include proper accessibility attributes (aria-labels, alt text)
+- Support both light and dark modes
+- Use semantic HTML elements
+
+### Route Configuration
+- Define routes in `app/routes.ts` using React Router's route helpers
+- Use `index()` for index routes
+- Use `route()` for named routes
+- Export `meta()` functions for SEO and social sharing
+- Export `headers()` when custom headers are needed (e.g., OG image route)
+
+### Cloudflare Workers
+- Maintain Cloudflare Workers type definitions
+- Use `createRequestHandler` from React Router
+- Properly type `AppLoadContext` with Cloudflare environment
+- Export default handler that satisfies `ExportedHandler<Env>`
+
+## Code Patterns
+
+### Route Meta Tags
+```typescript
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: 'Page Title' },
+    { name: 'description', content: '...' },
+    // Open Graph tags
+    { property: 'og:title', content: '...' },
+    // Twitter Card tags
+    { name: 'twitter:card', content: '...' },
+  ];
+}
+```
+
+### Component Structure
+```typescript
+export function ComponentName() {
+  // State, hooks, data fetching
+  
+  return (
+    <div className="tailwind-classes">
+      {/* JSX */}
+    </div>
+  );
+}
+```
+
+### Social Links Pattern
+- Use discriminated unions for different link types (icon vs image)
+- Support dark mode for images (show/hide based on theme)
+- Include proper accessibility attributes
+
+## Best Practices
+
+1. **Performance**
+   - Optimize images and assets
+   - Use React Router's data loading capabilities
+   - Leverage Cloudflare Workers edge caching
+
+2. **SEO**
+   - Include comprehensive meta tags
+   - Use semantic HTML
+   - Generate proper Open Graph images
+
+3. **Accessibility**
+   - Include aria-labels on interactive elements
+   - Use semantic HTML elements
+   - Ensure keyboard navigation works
+   - Provide alt text for images
+
+4. **Maintainability**
+   - Keep components small and focused
+   - Use TypeScript for type safety
+   - Comment complex logic or business rules
+   - Follow consistent naming conventions
+
+5. **Responsive Design**
+   - Mobile-first approach
+   - Test on multiple screen sizes
+   - Use Tailwind's responsive utilities
+
+## Common Tasks
+
+### Adding a New Route
+1. Create route file in `app/routes/`
+2. Add route to `app/routes.ts`
+3. Export `meta()` function for SEO
+4. Consider adding Open Graph tags
+
+### Adding a New Component
+1. Create file in `app/components/` or appropriate directory
+2. Use named export
+3. Add TypeScript props interface
+4. Use Tailwind for styling
+5. Support dark mode if applicable
+
+### Updating Dependencies
+- Run `npm install` after updating `package.json`
+- Types are auto-generated on install via `postinstall` script
+- Ensure Cloudflare Workers compatibility
+
+## Environment Variables
+- Use `wrangler.jsonc` for environment configuration
+- Use Wrangler secrets for sensitive data (not committed)
+- Access via `context.cloudflare.env` in routes
+
+## Deployment
+- Use `npm run deploy` for direct production deployment
+- Use Wrangler versions for staged deployments
+- Ensure custom domain is configured in Cloudflare before deploying
+
+## Notes
+- The project uses React Router's file-based routing
+- Generated types are in `.react-router` directory (gitignored)
+- Cloudflare types are generated via `wrangler types`
+- Some components (FeaturedWork, ContactMe) are commented out but available for use
