@@ -1,5 +1,13 @@
 import type { Route } from "./+types/mahjong";
 import { useState, useEffect } from "react";
+import {
+  MAHJONG_2024_CATEGORIES,
+  type PatternInk,
+} from "../data/mahjong-2024-categories";
+import {
+  HandListFilterToggle,
+  type HandListFilterMode,
+} from "../components/hand-list-filter-toggle";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -51,9 +59,19 @@ const CRAKS: TileType[] = ["1C", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C",
 const DOTS: TileType[] = ["1D", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "0D"];
 const HONOR_TILES: TileType[] = ["N", "E", "W", "S", "D", "F"];
 
-// Data structure for NMJL cards
-// Data sourced from I Love Mahj (ilovemahj.com) card analysis
-// Used with permission under their Creative Commons license
+/** Card ink slots → display colors (G/R/Bk = three distinct suits in UI, matched to picker rows) */
+const PATTERN_INK_CLASS: Record<PatternInk, string> = {
+  G: "text-green-600 dark:text-green-400 font-semibold",
+  R: "text-red-600 dark:text-red-400 font-semibold",
+  Bk: "text-zinc-700 dark:text-zinc-300 font-semibold",
+  neutral: "text-zinc-600 dark:text-zinc-400 font-semibold",
+};
+
+function splitPatternTokens(pattern: string): string[] {
+  return pattern.trim().split(/\s+/).filter(Boolean);
+}
+
+// Data structure for NMJL-style reference hands (unofficial; see page disclaimer)
 interface MahjongHand {
   category: string;
   pattern: string;
@@ -61,7 +79,9 @@ interface MahjongHand {
   exposure: "concealed" | "exposed";
   notes?: string;
   id?: string; // Unique identifier for tracking/favorites
-  suitType?: "single" | "multi" | "any"; // Suit requirement indicator
+  suitType?: "single"; // Only mark single-suit hands (physical card uses colors for multi-suit)
+  /** One entry per whitespace-separated token in `pattern` (NMJL card ink → suits) */
+  patternInks?: PatternInk[];
 }
 
 interface YearCard {
@@ -72,717 +92,13 @@ interface YearCard {
   }[];
 }
 
-// Card data from I Love Mahj analysis
+// Only years with verified card data (expand when confirmed)
+const DEFAULT_MAHJONG_YEAR = 2024;
+
 const CARDS_BY_YEAR: YearCard[] = [
   {
-    year: 2025,
-    categories: [
-      {
-        name: "2025",
-        hands: [
-          {
-            category: "2025",
-            pattern: "FFFF 222 55 2025",
-            value: 25,
-            exposure: "exposed",
-            notes: "4 Flowers + pungs of 2s or 5s (matching)",
-          },
-          {
-            category: "2025",
-            pattern: "222 5555 222 5555",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-4-3-4 with 2s and 5s",
-          },
-          {
-            category: "2025",
-            pattern: "2 00 22 555 DDDD 2025",
-            value: 30,
-            exposure: "exposed",
-            notes: "Three-suit hand with 2025, pungs of 2s & 5s, Dragon kong",
-            suitType: "multi",
-          },
-          {
-            category: "2025",
-            pattern: "20 252 025 202 505",
-            value: 25,
-            exposure: "concealed",
-            notes: "Pattern 2-3-3-3-3",
-          },
-        ],
-      },
-      {
-        name: "2468 (EVENS)",
-        hands: [
-          {
-            category: "2468",
-            pattern: "222 4444 666 8888",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-4-3-4 with even numbers",
-          },
-          {
-            category: "2468",
-            pattern: "24 682 46 824 68",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-4",
-          },
-          {
-            category: "2468",
-            pattern: "22 44 666 888 2468",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "2468",
-            pattern: "FFFF 22 4444 6666",
-            value: 25,
-            exposure: "exposed",
-            notes: "4 Flowers + matching even pungs",
-          },
-          {
-            category: "2468",
-            pattern: "FFF 2222 4444 6666",
-            value: 25,
-            exposure: "exposed",
-            notes: "One-suit with 3 Flowers",
-            suitType: "single",
-          },
-          {
-            category: "2468",
-            pattern: "24 68 2468 24 68",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-4-2-2",
-          },
-          {
-            category: "2468",
-            pattern: "22 4444 6666 8888",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-4-4-4",
-          },
-          {
-            category: "2468",
-            pattern: "22 44 66 88 22 44 66",
-            value: 30,
-            exposure: "concealed",
-            notes: "Concealed, 4 pairs + pairs of evens",
-          },
-        ],
-      },
-      {
-        name: "ANY LIKE NUMBERS",
-        hands: [
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "11 2222 3 3333 4 44",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-4-1-4-1-2",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "1111 22 333 444 55",
-            value: 30,
-            exposure: "exposed",
-            notes: "Pattern 4-2-3-3-2, two identical pairs (no Jokers)",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "11 222 333 444 555",
-            value: 25,
-            exposure: "concealed",
-            notes: "Pattern 2-3-3-3-3",
-          },
-        ],
-      },
-      {
-        name: "QUINTS",
-        hands: [
-          {
-            category: "QUINTS",
-            pattern: "11111 2222 3333 DD",
-            value: 30,
-            exposure: "exposed",
-            notes: "Quint + 2 kongs + pair of dragons",
-          },
-          {
-            category: "QUINTS",
-            pattern: "11111 22222 333 DD",
-            value: 35,
-            exposure: "exposed",
-            notes: "2 Quints + pung + pair of dragons",
-          },
-          {
-            category: "QUINTS",
-            pattern: "11111 22222 33333 D",
-            value: 50,
-            exposure: "exposed",
-            notes: "3 Quints + single dragon",
-          },
-        ],
-      },
-      {
-        name: "CONSECUTIVE RUN",
-        hands: [
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "1111 2222 3333 4444",
-            value: 30,
-            exposure: "exposed",
-            notes: "4 consecutive kongs",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "111 2222 3333 4444 5",
-            value: 30,
-            exposure: "exposed",
-            notes: "Consecutive pung-kong-kong-kong-single",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "11 222 3333 5555 666",
-            value: 30,
-            exposure: "exposed",
-            notes: "Consecutive with gap",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "1111 222 333 4444 55",
-            value: 30,
-            exposure: "exposed",
-            notes: "Kong-pung-pung-kong-pair",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "111 222 333 444 555 66",
-            value: 35,
-            exposure: "exposed",
-            notes: "5 consecutive pungs + pair",
-          },
-        ],
-      },
-      {
-        name: "13579 (ODDS)",
-        hands: [
-          {
-            category: "13579",
-            pattern: "111 3333 555 7777",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-4-3-4 with odd numbers",
-          },
-          {
-            category: "13579",
-            pattern: "13 579 15 937 79",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-2",
-          },
-          {
-            category: "13579",
-            pattern: "11 33 555 777 9999",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "13579",
-            pattern: "FFFF 111 333 13579",
-            value: 25,
-            exposure: "exposed",
-            notes: "4 Flowers + 2 pungs + singles",
-          },
-          {
-            category: "13579",
-            pattern: "FFF 1111 3333 5555",
-            value: 25,
-            exposure: "exposed",
-            notes: "3 Flowers + 3 kongs (one suit)",
-            suitType: "single",
-          },
-          {
-            category: "13579",
-            pattern: "11 33 55 77 99 11 33",
-            value: 30,
-            exposure: "concealed",
-            notes: "Concealed pairs of odds",
-          },
-        ],
-      },
-      {
-        name: "WINDS - DRAGONS",
-        hands: [
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNNN EEEE WWWW SSSS",
-            value: 30,
-            exposure: "exposed",
-            notes: "4 winds kongs",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNN EEE WWW SSS DD",
-            value: 25,
-            exposure: "exposed",
-            notes: "4 winds pungs + pair of dragons",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDDD DDDD DDDD NEWS",
-            value: 30,
-            exposure: "exposed",
-            notes: "3 dragon kongs + 1 of each wind",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDD DDD DDD NNNN EE",
-            value: 30,
-            exposure: "exposed",
-            notes: "3 dragon pungs + wind kong + pair",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNN EEEE WWWW SSSS D",
-            value: 35,
-            exposure: "exposed",
-            notes: "Pung + 3 kongs + single dragon",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDDD DDDD DDDD NN EE",
-            value: 40,
-            exposure: "exposed",
-            notes: "3 dragon kongs + 2 wind pairs",
-          },
-        ],
-      },
-      {
-        name: "369",
-        hands: [
-          {
-            category: "369",
-            pattern: "333 6666 999 3333",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-4-3-4",
-          },
-          {
-            category: "369",
-            pattern: "36 963 69 336 99",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-2",
-          },
-          {
-            category: "369",
-            pattern: "33 66 999 333 6666",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "369",
-            pattern: "FFF 3333 6666 9999",
-            value: 25,
-            exposure: "exposed",
-            notes: "3 Flowers + 3 kongs",
-          },
-        ],
-      },
-      {
-        name: "SINGLES AND PAIRS",
-        hands: [
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "11 22 33 44 55 66 77",
-            value: 25,
-            exposure: "concealed",
-            notes: "7 pairs",
-          },
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "FF 11 22 33 44 55 66",
-            value: 30,
-            exposure: "concealed",
-            notes: "2 Flowers + 6 pairs",
-          },
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "NEWS DD DD DD 1234567",
-            value: 35,
-            exposure: "concealed",
-            notes: "NEWS + 3 dragon pairs + run",
-          },
-        ],
-      },
-    ],
-  },
-  {
     year: 2024,
-    categories: [
-      {
-        name: "2024",
-        hands: [
-          {
-            category: "2024",
-            pattern: "222 000 2222 4444",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-3-4-4",
-          },
-          {
-            category: "2024",
-            pattern: "2222 0000 4444 2 0",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 4-4-4-1-1",
-          },
-          {
-            category: "2024",
-            pattern: "20 2 0 2 4 2222 0000",
-            value: 25,
-            exposure: "exposed",
-            notes: "Flexible kongs: 2s or 0s",
-          },
-          {
-            category: "2024",
-            pattern: "22 000 2 0 2 4 000 24",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-1-1-1-1-3-2",
-          },
-        ],
-      },
-      {
-        name: "2468 (EVENS)",
-        hands: [
-          {
-            category: "2468",
-            pattern: "222 444 6666 8888",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-3-4-4",
-          },
-          {
-            category: "2468",
-            pattern: "24 682 46 824 2468",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-4",
-          },
-          {
-            category: "2468",
-            pattern: "22 44 666 888 2468",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "2468",
-            pattern: "2222 4444 6666 2 4",
-            value: 25,
-            exposure: "exposed",
-            notes: "3 kongs + 2 singles",
-          },
-          {
-            category: "2468",
-            pattern: "24 6688 24 68 2244",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-4-2-2-4",
-          },
-          {
-            category: "2468",
-            pattern: "22 444 66 888 24 68",
-            value: 25,
-            exposure: "concealed",
-            notes: "Pattern 2-3-2-3-2-2",
-          },
-        ],
-      },
-      {
-        name: "ADDITION",
-        hands: [
-          {
-            category: "ADDITION",
-            pattern: "22 4444 6666 2222",
-            value: 25,
-            exposure: "exposed",
-            notes: "2+4=6",
-          },
-          {
-            category: "ADDITION",
-            pattern: "22 6666 8888 2222",
-            value: 25,
-            exposure: "exposed",
-            notes: "2+6=8",
-          },
-          {
-            category: "ADDITION",
-            pattern: "44 6666 2222 4444",
-            value: 25,
-            exposure: "exposed",
-            notes: "4+6=10 (1+0=1)",
-          },
-        ],
-      },
-      {
-        name: "ANY LIKE NUMBERS",
-        hands: [
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "1111 222 3333 444",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 4-3-4-3",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "11 222 33 444 5555",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-4",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "11 2222 333 4444 55",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-4-3-4-2",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "1111 22 333 444 5555",
-            value: 30,
-            exposure: "exposed",
-            notes: "No Jokers in pairs",
-          },
-          {
-            category: "ANY LIKE NUMBERS",
-            pattern: "11 222 333 444 5555",
-            value: 25,
-            exposure: "concealed",
-            notes: "Pattern 2-3-3-3-4",
-          },
-        ],
-      },
-      {
-        name: "QUINTS",
-        hands: [
-          {
-            category: "QUINTS",
-            pattern: "11111 2222 3333 DD",
-            value: 30,
-            exposure: "exposed",
-            notes: "Quint + 2 kongs + dragon pair",
-          },
-          {
-            category: "QUINTS",
-            pattern: "11111 22222 333 DD",
-            value: 35,
-            exposure: "exposed",
-            notes: "2 Quints + pung + dragon pair",
-          },
-          {
-            category: "QUINTS",
-            pattern: "11111 22222 33333 D",
-            value: 50,
-            exposure: "exposed",
-            notes: "3 Quints + single dragon",
-          },
-        ],
-      },
-      {
-        name: "CONSECUTIVE RUN",
-        hands: [
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "1111 2222 3333 4444",
-            value: 30,
-            exposure: "exposed",
-            notes: "4 consecutive kongs",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "111 2222 3333 4444 5",
-            value: 30,
-            exposure: "exposed",
-            notes: "Consecutive run with single",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "11 222 3333 5555 666",
-            value: 30,
-            exposure: "exposed",
-            notes: "Consecutive with gap at 4",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "1111 222 333 4444 55",
-            value: 30,
-            exposure: "exposed",
-            notes: "Kong-pung-pung-kong-pair",
-          },
-          {
-            category: "CONSECUTIVE RUN",
-            pattern: "111 222 333 444 555 66",
-            value: 35,
-            exposure: "exposed",
-            notes: "5 consecutive pungs + pair",
-          },
-        ],
-      },
-      {
-        name: "13579 (ODDS)",
-        hands: [
-          {
-            category: "13579",
-            pattern: "111 333 5555 7777",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-3-4-4",
-          },
-          {
-            category: "13579",
-            pattern: "13 579 15 937 13579",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-5",
-          },
-          {
-            category: "13579",
-            pattern: "11 33 555 777 9999",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "13579",
-            pattern: "1111 3333 5555 1 3",
-            value: 25,
-            exposure: "exposed",
-            notes: "3 kongs + 2 singles",
-          },
-          {
-            category: "13579",
-            pattern: "11 33 55 77 99 11 33",
-            value: 30,
-            exposure: "concealed",
-            notes: "7 pairs of odds",
-          },
-        ],
-      },
-      {
-        name: "WINDS - DRAGONS",
-        hands: [
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNNN EEEE WWWW SSSS",
-            value: 30,
-            exposure: "exposed",
-            notes: "4 winds kongs",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNN EEE WWW SSS DD",
-            value: 25,
-            exposure: "exposed",
-            notes: "4 winds pungs + dragon pair",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDDD DDDD DDDD NEWS",
-            value: 30,
-            exposure: "exposed",
-            notes: "3 dragon kongs + NEWS",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDD DDD DDD NNNN EE",
-            value: 30,
-            exposure: "exposed",
-            notes: "3 dragon pungs + kong + pair",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "NNN EEEE WWWW SSSS D",
-            value: 35,
-            exposure: "exposed",
-            notes: "Pung + 3 kongs + dragon",
-          },
-          {
-            category: "WINDS - DRAGONS",
-            pattern: "DDDD DDDD DDDD NN EE",
-            value: 40,
-            exposure: "exposed",
-            notes: "3 dragon kongs + 2 wind pairs",
-          },
-        ],
-      },
-      {
-        name: "369",
-        hands: [
-          {
-            category: "369",
-            pattern: "333 666 9999 3333",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 3-3-4-4",
-          },
-          {
-            category: "369",
-            pattern: "36 963 69 336 369",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-3-2-3-3",
-          },
-          {
-            category: "369",
-            pattern: "33 66 999 333 6666",
-            value: 25,
-            exposure: "exposed",
-            notes: "Pattern 2-2-3-3-4",
-          },
-          {
-            category: "369",
-            pattern: "3333 6666 9999 3 6",
-            value: 25,
-            exposure: "exposed",
-            notes: "3 kongs + 2 singles",
-          },
-        ],
-      },
-      {
-        name: "SINGLES AND PAIRS",
-        hands: [
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "11 22 33 44 55 66 77",
-            value: 25,
-            exposure: "concealed",
-            notes: "7 pairs",
-          },
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "FF 11 22 33 44 55 66",
-            value: 30,
-            exposure: "concealed",
-            notes: "2 Flowers + 6 pairs",
-          },
-          {
-            category: "SINGLES AND PAIRS",
-            pattern: "NEWS DD DD DD 1234567",
-            value: 35,
-            exposure: "concealed",
-            notes: "NEWS + dragon pairs + run",
-          },
-        ],
-      },
-    ],
+    categories: MAHJONG_2024_CATEGORIES,
   },
 ];
 
@@ -830,24 +146,27 @@ function calculateHandMatch(selectedTiles: Record<TileType, number>, pattern: st
   return totalRequired > 0 ? matchedCount / totalRequired : 0;
 }
 
+const STORAGE_TILE_TRACKING = "mahjong-tile-tracking-enabled";
+const STORAGE_SHOW_HAND_DESCRIPTIONS = "mahjong-show-hand-descriptions";
+
 export default function MahjongRoute() {
-  // Default to the latest year available in our data
-  const latestYear = Math.max(...CARDS_BY_YEAR.map(card => card.year));
-  const [selectedYear, setSelectedYear] = useState(latestYear);
+  const [selectedYear, setSelectedYear] = useState(DEFAULT_MAHJONG_YEAR);
   const [trackedHands, setTrackedHands] = useState<Set<string>>(new Set());
   const [selectedTiles, setSelectedTiles] = useState<Record<TileType, number>>({} as Record<TileType, number>);
-  const [filterMode, setFilterMode] = useState<"all" | "tracked" | number>("all");
+  const [filterMode, setFilterMode] = useState<HandListFilterMode>("all");
   const [showSettings, setShowSettings] = useState(false);
   const [tilesExpanded, setTilesExpanded] = useState(true);
+  const [tileTrackingEnabled, setTileTrackingEnabled] = useState(false);
+  const [showHandDescriptions, setShowHandDescriptions] = useState(false);
 
-  // Load tracked hands and selected tiles from localStorage on mount
+  // Load tracked hands, selected tiles, and tile-tracking preference on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("mahjong-tracked-hands");
       if (saved) {
         try {
           setTrackedHands(new Set(JSON.parse(saved)));
-        } catch (e) {
+        } catch {
           // Ignore parse errors
         }
       }
@@ -856,9 +175,18 @@ export default function MahjongRoute() {
       if (savedTiles) {
         try {
           setSelectedTiles(JSON.parse(savedTiles));
-        } catch (e) {
+        } catch {
           // Ignore parse errors
         }
+      }
+
+      const savedTracking = localStorage.getItem(STORAGE_TILE_TRACKING);
+      if (savedTracking === "true") {
+        setTileTrackingEnabled(true);
+      }
+
+      if (localStorage.getItem(STORAGE_SHOW_HAND_DESCRIPTIONS) === "true") {
+        setShowHandDescriptions(true);
       }
     }
   }, []);
@@ -876,6 +204,27 @@ export default function MahjongRoute() {
       localStorage.setItem("mahjong-selected-tiles", JSON.stringify(selectedTiles));
     }
   }, [selectedTiles]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_TILE_TRACKING, tileTrackingEnabled ? "true" : "false");
+    }
+  }, [tileTrackingEnabled]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        STORAGE_SHOW_HAND_DESCRIPTIONS,
+        showHandDescriptions ? "true" : "false"
+      );
+    }
+  }, [showHandDescriptions]);
+
+  useEffect(() => {
+    if (!tileTrackingEnabled && filterMode === "matching") {
+      setFilterMode("all");
+    }
+  }, [tileTrackingEnabled, filterMode]);
 
   const availableYears = CARDS_BY_YEAR.map((card) => card.year).sort(
     (a, b) => b - a
@@ -959,27 +308,66 @@ export default function MahjongRoute() {
   };
 
   const hasSelectedTiles = Object.keys(selectedTiles).length > 0;
+  /** Tile picker, match filters, highlights, and summary bar */
+  const tileMatchActive = tileTrackingEnabled && hasSelectedTiles;
 
-  // Helper function to render pattern with highlighted tiles
-  const renderPatternWithHighlights = (pattern: string) => {
-    return pattern.split('').map((char, index) => {
-      // Check if this character is a tile the user has
-      const hasTile = NUMBERS.includes(char as any)
-        ? getTotalForNumber(selectedTiles, char) > 0
-        : (["N", "E", "W", "S", "D", "F"].includes(char) && (selectedTiles[char as TileType] || 0) > 0);
+  useEffect(() => {
+    if (filterMode === "matching" && !hasSelectedTiles) {
+      setFilterMode("all");
+    }
+  }, [filterMode, hasSelectedTiles]);
 
-      if (hasTile) {
-        return (
-          <span
-            key={index}
-            className="bg-blue-500 dark:bg-blue-600 text-white px-0.5 rounded font-bold"
-          >
-            {char}
-          </span>
-        );
+  const currentCardUsesPatternInks = Boolean(
+    currentCard?.categories.some((c) =>
+      c.hands.some((h) => h.patternInks && h.patternInks.length > 0)
+    )
+  );
+
+  const renderPatternChar = (char: string, key: string | number) => {
+    const hasTile = NUMBERS.includes(char as any)
+      ? getTotalForNumber(selectedTiles, char) > 0
+      : ["N", "E", "W", "S", "D", "F"].includes(char) &&
+        (selectedTiles[char as TileType] || 0) > 0;
+
+    if (hasTile) {
+      return (
+        <span
+          key={key}
+          className="bg-zinc-700 dark:bg-zinc-500 text-white px-0.5 rounded font-bold"
+        >
+          {char}
+        </span>
+      );
+    }
+    return <span key={key}>{char}</span>;
+  };
+
+  const renderPatternPlainHighlights = (pattern: string) =>
+    pattern.split("").map((char, index) => renderPatternChar(char, index));
+
+  const renderHandPattern = (hand: MahjongHand) => {
+    const tokens = splitPatternTokens(hand.pattern);
+    const inks = hand.patternInks;
+    const useInks = Boolean(inks && inks.length === tokens.length);
+
+    if (!useInks) {
+      if (tileMatchActive) {
+        return renderPatternPlainHighlights(hand.pattern);
       }
-      return <span key={index}>{char}</span>;
-    });
+      return hand.pattern;
+    }
+
+    const inkList = inks as PatternInk[];
+    return tokens.map((token, i) => (
+      <span key={i}>
+        {i > 0 ? " " : null}
+        <span className={PATTERN_INK_CLASS[inkList[i]]}>
+          {tileMatchActive
+            ? token.split("").map((char, j) => renderPatternChar(char, `${i}-${j}`))
+            : token}
+        </span>
+      </span>
+    ));
   };
 
   return (
@@ -996,11 +384,12 @@ export default function MahjongRoute() {
             </p>
           </div>
           <button
+            type="button"
             onClick={() => setShowSettings(true)}
             className="p-2 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Settings"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -1019,6 +408,7 @@ export default function MahjongRoute() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h2>
                   <button
+                    type="button"
                     onClick={() => setShowSettings(false)}
                     className="p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
@@ -1029,6 +419,58 @@ export default function MahjongRoute() {
                 </div>
 
                 <div className="space-y-4">
+                  <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        Track tiles against hands
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Shows the tile picker, match filters, pattern highlights, and the hand summary bar. Off by default.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={tileTrackingEnabled}
+                      onClick={() => setTileTrackingEnabled((v) => !v)}
+                      className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                        tileTrackingEnabled ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition ${
+                          tileTrackingEnabled ? "translate-x-5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        Hand descriptions
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Suit and pattern notes below each hand. Off by default.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={showHandDescriptions}
+                      onClick={() => setShowHandDescriptions((v) => !v)}
+                      className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                        showHandDescriptions ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition ${
+                          showHandDescriptions ? "translate-x-5" : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
                   <div>
                     <label
                       htmlFor="year-select"
@@ -1058,6 +500,7 @@ export default function MahjongRoute() {
 
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
+                      type="button"
                       onClick={() => {
                         resetAllState();
                         setShowSettings(false);
@@ -1076,108 +519,127 @@ export default function MahjongRoute() {
           </div>
         )}
 
-        {/* Suit Type Legend */}
+        {/* Suit / pattern colors (short) */}
         <div className="mb-4 sm:mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
-          <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200 mb-2 font-medium">
-            Understanding Suit Requirements:
+          <p className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+            Reading the patterns
           </p>
-          <div className="flex flex-wrap gap-3 text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 font-medium">
-                1 Suit
-              </span>
-              <span className="text-blue-700 dark:text-blue-300">All numbers from one suit</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
-                Multi-Suit
-              </span>
-              <span className="text-blue-700 dark:text-blue-300">Requires multiple suits</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-blue-700 dark:text-blue-300 italic">No badge = Flexible (any suit configuration)</span>
-            </div>
+          <div className="flex flex-col gap-2 text-xs text-blue-700 dark:text-blue-300">
+            {currentCardUsesPatternInks ? (
+              <p>
+                <span className="font-mono font-medium">
+                  <span className={PATTERN_INK_CLASS.G}>G</span> /{" "}
+                  <span className={PATTERN_INK_CLASS.R}>R</span> /{" "}
+                  <span className={PATTERN_INK_CLASS.Bk}>Bk</span>
+                </span>{" "}
+                follow NMJL ink: same color = same suit; different colors = different suits. Here they
+                line up with Bams / Craks / Dots
+                {tileTrackingEnabled ? " in the tile picker" : " (enable Track tiles in Settings for the picker)"}.
+                <span className={`font-mono ${PATTERN_INK_CLASS.neutral}`}> Gray + × =</span> are operators,
+                not tiles.
+              </p>
+            ) : (
+              <p>Pattern text is plain—use your printed card for suit rules on this year.</p>
+            )}
           </div>
         </div>
 
         {/* Controls */}
         <div className="mb-6 sm:mb-8">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Filter Hands
-          </label>
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setFilterMode("all")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                filterMode === "all"
-                  ? "bg-blue-600 text-white dark:bg-blue-500"
-                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-              }`}
-            >
-              Show All
-            </button>
-            <button
-              onClick={() => setFilterMode("tracked")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                filterMode === "tracked"
-                  ? "bg-blue-600 text-white dark:bg-blue-500"
-                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-              }`}
-            >
-              Tracked Only {trackedHands.size > 0 && `(${trackedHands.size})`}
-            </button>
-            {hasSelectedTiles && (
-              <>
-                <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-                <button
-                  onClick={() => setFilterMode(25)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    filterMode === 25
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  ≥25% Match
-                </button>
-                <button
-                  onClick={() => setFilterMode(50)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    filterMode === 50
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  ≥50% Match
-                </button>
-                <button
-                  onClick={() => setFilterMode(75)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    filterMode === 75
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  ≥75% Match
-                </button>
-                <button
-                  onClick={() => setFilterMode(100)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    filterMode === 100
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-                >
-                  100% Match
-                </button>
-              </>
-            )}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 shrink-0">
+              Filter Hands
+            </span>
+            <HandListFilterToggle
+              filterMode={filterMode}
+              onModeChange={setFilterMode}
+              trackedCount={trackedHands.size}
+              tileTrackingEnabled={tileTrackingEnabled}
+              hasSelectedTiles={hasSelectedTiles}
+            />
           </div>
+
+          <details className="mt-3 rounded-lg border border-gray-200 bg-gray-50 open:[&_summary_svg]:rotate-90 dark:border-gray-600 dark:bg-gray-800/60">
+            <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100/80 dark:text-gray-200 dark:hover:bg-gray-700/50 [&::-webkit-details-marker]:hidden">
+              <span className="inline-flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 shrink-0 text-gray-500 transition-transform dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                Pattern symbol legend
+              </span>
+            </summary>
+            <div className="border-t border-gray-200 px-3 py-3 text-xs text-gray-700 dark:border-gray-600 dark:text-gray-300">
+              <dl className="space-y-2.5">
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">Digits 1–9, 0</dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    Number tiles in each suit. <span className="font-mono font-medium">0</span> is soap
+                    (zero), as on the NMJL card.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">F</dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">Flowers.</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">N, E, W, S</dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    North, East, West, South winds.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">D</dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    Dragon tiles (which dragon follows your card).
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">Spaces</dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    Separate melds or groups as printed on the card line.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-gray-900 dark:text-white">
+                    <span className={`font-mono ${PATTERN_INK_CLASS.neutral}`}>+</span>,{" "}
+                    <span className={`font-mono ${PATTERN_INK_CLASS.neutral}`}>×</span>,{" "}
+                    <span className={`font-mono ${PATTERN_INK_CLASS.neutral}`}>x</span>,{" "}
+                    <span className={`font-mono ${PATTERN_INK_CLASS.neutral}`}>=</span>
+                  </dt>
+                  <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                    Operators for addition or multiplication hands—notation only, not tiles.
+                  </dd>
+                </div>
+                {currentCardUsesPatternInks ? (
+                  <div>
+                    <dt className="font-semibold text-gray-900 dark:text-white">
+                      <span className={PATTERN_INK_CLASS.G}>G</span>,{" "}
+                      <span className={PATTERN_INK_CLASS.R}>R</span>,{" "}
+                      <span className={PATTERN_INK_CLASS.Bk}>Bk</span>
+                    </dt>
+                    <dd className="mt-0.5 text-gray-600 dark:text-gray-400">
+                      Ink colors from the card: same ink = same suit; different inks = different suits.
+                      Here they align with Bams / Craks / Dots in the tile picker.
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+          </details>
         </div>
 
         {/* Tile Selector */}
+        {tileTrackingEnabled ? (
         <div className="mb-6 sm:mb-8 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6">
           <div className="flex items-center justify-between mb-3">
             <button
+              type="button"
               onClick={() => setTilesExpanded(!tilesExpanded)}
               className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             >
@@ -1215,15 +677,16 @@ export default function MahjongRoute() {
                 {BAMS.map((tile) => (
                   <button
                     key={tile}
+                    type="button"
                     onClick={() => toggleTile(tile, true)}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       toggleTile(tile, false);
                     }}
-                    className={`aspect-square rounded-lg font-mono font-bold text-lg sm:text-xl transition-all active:scale-95 flex flex-col items-center justify-center relative ${
+                    className={`relative flex aspect-square flex-col items-center justify-center rounded-lg font-mono text-lg font-bold transition-all active:scale-95 sm:text-xl ${
                       selectedTiles[tile]
-                        ? "bg-green-500 text-white dark:bg-green-600 shadow-lg"
-                        : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-green-300 dark:border-green-600"
+                        ? "bg-green-500 text-white shadow-lg dark:bg-green-600"
+                        : "border-2 border-green-300 bg-white text-gray-900 dark:border-green-600 dark:bg-gray-700 dark:text-white"
                     }`}
                     title={TILE_DESCRIPTIONS[tile]}
                   >
@@ -1245,15 +708,16 @@ export default function MahjongRoute() {
                 {CRAKS.map((tile) => (
                   <button
                     key={tile}
+                    type="button"
                     onClick={() => toggleTile(tile, true)}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       toggleTile(tile, false);
                     }}
-                    className={`aspect-square rounded-lg font-mono font-bold text-lg sm:text-xl transition-all active:scale-95 flex flex-col items-center justify-center relative ${
+                    className={`relative flex aspect-square flex-col items-center justify-center rounded-lg font-mono text-lg font-bold transition-all active:scale-95 sm:text-xl ${
                       selectedTiles[tile]
-                        ? "bg-red-500 text-white dark:bg-red-600 shadow-lg"
-                        : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-red-300 dark:border-red-600"
+                        ? "bg-red-500 text-white shadow-lg dark:bg-red-600"
+                        : "border-2 border-red-300 bg-white text-gray-900 dark:border-red-600 dark:bg-gray-700 dark:text-white"
                     }`}
                     title={TILE_DESCRIPTIONS[tile]}
                   >
@@ -1275,15 +739,16 @@ export default function MahjongRoute() {
                 {DOTS.map((tile) => (
                   <button
                     key={tile}
+                    type="button"
                     onClick={() => toggleTile(tile, true)}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       toggleTile(tile, false);
                     }}
-                    className={`aspect-square rounded-lg font-mono font-bold text-lg sm:text-xl transition-all active:scale-95 flex flex-col items-center justify-center relative ${
+                    className={`relative flex aspect-square flex-col items-center justify-center rounded-lg font-mono text-lg font-bold transition-all active:scale-95 sm:text-xl ${
                       selectedTiles[tile]
-                        ? "bg-blue-500 text-white dark:bg-blue-600 shadow-lg"
-                        : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-blue-300 dark:border-blue-600"
+                        ? "bg-blue-500 text-white shadow-lg dark:bg-blue-600"
+                        : "border-2 border-blue-300 bg-white text-gray-900 dark:border-blue-600 dark:bg-gray-700 dark:text-white"
                     }`}
                     title={TILE_DESCRIPTIONS[tile]}
                   >
@@ -1305,15 +770,16 @@ export default function MahjongRoute() {
                 {HONOR_TILES.map((tile) => (
                   <button
                     key={tile}
+                    type="button"
                     onClick={() => toggleTile(tile, true)}
                     onContextMenu={(e) => {
                       e.preventDefault();
                       toggleTile(tile, false);
                     }}
-                    className={`aspect-square rounded-lg font-mono font-bold text-lg sm:text-xl transition-all active:scale-95 flex flex-col items-center justify-center relative ${
+                    className={`relative flex aspect-square flex-col items-center justify-center rounded-lg font-mono text-lg font-bold transition-all active:scale-95 sm:text-xl ${
                       selectedTiles[tile]
-                        ? "bg-purple-500 text-white dark:bg-purple-600 shadow-lg"
-                        : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-purple-300 dark:border-purple-600"
+                        ? "bg-purple-500 text-white shadow-lg dark:bg-purple-600"
+                        : "border-2 border-purple-300 bg-white text-gray-900 dark:border-purple-600 dark:bg-gray-700 dark:text-white"
                     }`}
                     title={TILE_DESCRIPTIONS[tile]}
                   >
@@ -1331,6 +797,7 @@ export default function MahjongRoute() {
             </>
           )}
         </div>
+        ) : null}
 
         {/* Card Content */}
         {currentCard ? (
@@ -1338,7 +805,7 @@ export default function MahjongRoute() {
             {filterMode === "tracked" && trackedHands.size === 0 && (
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
                 <p className="text-yellow-800 dark:text-yellow-200">
-                  No tracked hands yet. Click the "Track" button on any hand to add it to your tracked list.
+                  No tracked hands yet. Tap the bookmark on any hand to add it to your list.
                 </p>
               </div>
             )}
@@ -1352,10 +819,15 @@ export default function MahjongRoute() {
                   }
 
                   // Apply match percentage filter
-                  if (typeof filterMode === "number") {
-                    const matchScore = hasSelectedTiles ? calculateHandMatch(selectedTiles, hand.pattern) : 0;
-                    const matchPercentage = Math.round(matchScore * 100);
-                    return matchPercentage >= filterMode;
+                  if (filterMode === "matching") {
+                    if (!tileMatchActive) {
+                      return true;
+                    }
+                    const matchScore = calculateHandMatch(
+                      selectedTiles,
+                      hand.pattern
+                    );
+                    return matchScore > 0;
                   }
 
                   // "all" mode - show everything
@@ -1374,13 +846,15 @@ export default function MahjongRoute() {
                   </h2>
                   <div className="space-y-3">
                     {handsToShow.map(({ hand, handIndex, handId }) => {
-                      const matchScore = hasSelectedTiles ? calculateHandMatch(selectedTiles, hand.pattern) : 0;
+                      const matchScore = tileMatchActive
+                        ? calculateHandMatch(selectedTiles, hand.pattern)
+                        : 0;
                       const isTracked = trackedHands.has(handId);
 
                       // Determine background color based on match score
                       let bgColorClass = "bg-white dark:bg-gray-700";
                       let borderColorClass = "";
-                      if (hasSelectedTiles && matchScore > 0) {
+                      if (tileMatchActive && matchScore > 0) {
                         if (matchScore >= 0.75) {
                           bgColorClass = "bg-green-50 dark:bg-green-900/20";
                           borderColorClass = "border-2 border-green-500 dark:border-green-600";
@@ -1396,64 +870,75 @@ export default function MahjongRoute() {
                       return (
                         <div
                           key={handIndex}
-                          className={`rounded-md p-3 sm:p-4 flex flex-col gap-2 ${bgColorClass} ${borderColorClass}`}
+                          className={`relative rounded-md p-3 sm:p-4 pt-3 pr-12 sm:pr-14 flex flex-col gap-2 ${bgColorClass} ${borderColorClass}`}
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3">
-                            <div className="flex-1 overflow-x-auto">
-                              <code className="text-sm sm:text-base lg:text-lg font-mono text-gray-900 dark:text-white whitespace-nowrap">
-                                {hasSelectedTiles ? renderPatternWithHighlights(hand.pattern) : hand.pattern}
-                              </code>
-                            </div>
-                            <div className="flex gap-2 sm:gap-3 items-center flex-shrink-0">
-                              <div className="flex gap-2 sm:gap-3 text-xs sm:text-sm flex-wrap items-center">
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  Value: <strong className="text-gray-900 dark:text-white">{hand.value}</strong>
-                                </span>
-                                <span className="text-gray-600 dark:text-gray-400 capitalize">
-                                  {hand.exposure}
-                                </span>
-                                {hand.suitType && (
-                                  <span
-                                    className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                      hand.suitType === "single"
-                                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
-                                        : hand.suitType === "multi"
-                                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                                        : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                                    }`}
-                                    title={
-                                      hand.suitType === "single"
-                                        ? "All number tiles must be from one suit"
-                                        : hand.suitType === "multi"
-                                        ? "Requires tiles from multiple suits"
-                                        : "Can be completed with any suit configuration"
-                                    }
-                                  >
-                                    {hand.suitType === "single" && "1 Suit"}
-                                    {hand.suitType === "multi" && "Multi-Suit"}
-                                    {hand.suitType === "any" && "Any Suit"}
-                                  </span>
-                                )}
-                              </div>
-                              <button
-                                onClick={() => toggleTracked(handId)}
-                                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                                  isTracked
-                                    ? "bg-blue-600 text-white dark:bg-blue-500"
-                                    : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
-                                }`}
-                                title={isTracked ? "Untrack hand" : "Track hand"}
+                          <button
+                            type="button"
+                            onClick={() => toggleTracked(handId)}
+                            className={`absolute top-2 right-2 z-10 rounded-md p-1.5 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 dark:focus:ring-zinc-500 dark:focus:ring-offset-gray-800 ${
+                              isTracked
+                                ? "bg-zinc-800 text-white dark:bg-zinc-600"
+                                : "bg-white/90 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-600/90 dark:text-gray-200 dark:ring-gray-500 dark:hover:bg-gray-600"
+                            }`}
+                            aria-label={isTracked ? "Remove from tracked hands" : "Track hand"}
+                            title={isTracked ? "Untrack hand" : "Track hand"}
+                          >
+                            {isTracked ? (
+                              <svg
+                                className="h-5 w-5 sm:h-6 sm:w-6"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden
                               >
-                                {isTracked ? "✓ Tracking" : "Track"}
-                              </button>
-                            </div>
+                                <path
+                                  fillRule="evenodd"
+                                  d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="h-5 w-5 sm:h-6 sm:w-6"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                                aria-hidden
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                          <div className="min-w-0 overflow-x-auto">
+                            <code
+                              className={`text-lg sm:text-xl lg:text-2xl font-mono whitespace-nowrap ${
+                                hand.patternInks?.length ===
+                                splitPatternTokens(hand.pattern).length
+                                  ? ""
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              {renderHandPattern(hand)}
+                            </code>
                           </div>
-                          {hand.notes && (
+                          {hand.suitType === "single" && (
+                            <span
+                              className="self-start px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                              title="All number tiles must be from one suit"
+                            >
+                              1 Suit
+                            </span>
+                          )}
+                          {showHandDescriptions && hand.notes && (
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
                               {hand.notes}
                             </p>
                           )}
-                          {hasSelectedTiles && matchScore > 0 && (
+                          {tileMatchActive && matchScore > 0 && (
                             <div className="text-xs text-gray-600 dark:text-gray-400">
                               Match: {Math.round(matchScore * 100)}%
                             </div>
@@ -1466,30 +951,18 @@ export default function MahjongRoute() {
               );
             })}
 
-            {/* Note about data */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Data Source:</strong> Hand patterns sourced from{" "}
-                <a
-                  href="https://ilovemahj.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:no-underline font-semibold"
-                >
-                  I Love Mahj
-                </a>{" "}
-                card analysis. The National Mah Jongg League updates the
-                official card every April. For official gameplay, please
-                purchase the current year's card from{" "}
+            <div className="rounded-lg border border-blue-200 bg-blue-50/80 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/15">
+              <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
+                Not affiliated with the NMJL. This page is a study aid only—buy the official{" "}
                 <a
                   href="https://www.nationalmahjonggleague.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:no-underline"
+                  className="font-medium underline decoration-blue-600/50 underline-offset-2 hover:no-underline dark:decoration-blue-400/50"
                 >
-                  nationalmahjonggleague.org
-                </a>
-                .
+                  current-year card
+                </a>{" "}
+                for real play, points, and rules.
               </p>
             </div>
           </div>
@@ -1504,7 +977,7 @@ export default function MahjongRoute() {
       </div>
 
       {/* Floating Bottom Panel - Selected Tiles Summary */}
-      {hasSelectedTiles && (
+      {tileTrackingEnabled && hasSelectedTiles && (
         <div className="fixed bottom-0 left-0 right-0 z-40 animate-in slide-in-from-bottom duration-300">
           <div className="bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-2xl">
             <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
@@ -1551,18 +1024,19 @@ export default function MahjongRoute() {
                     return (
                       <button
                         key={tile}
+                        type="button"
                         onClick={() => {
-                          setSelectedTiles(prev => {
+                          setSelectedTiles((prev) => {
                             const { [tile as TileType]: _, ...rest } = prev;
                             return rest as Record<TileType, number>;
                           });
                         }}
                         style={{ animationDelay: `${index * 30}ms` }}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded text-sm font-medium cursor-pointer transition-all active:scale-95 hover:scale-105 hover:shadow-md animate-in fade-in slide-in-from-bottom-2 duration-300 ${colorClass}`}
+                        className={`inline-flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-sm font-medium transition-all animate-in fade-in slide-in-from-bottom-2 duration-300 hover:scale-105 hover:shadow-md active:scale-95 ${colorClass}`}
                         title={`Click to remove ${TILE_DESCRIPTIONS[tile as TileType]}`}
                       >
                         <span className="font-mono text-xs">{TILE_DESCRIPTIONS[tile as TileType]}</span>
-                        <span className="font-bold text-xs">×{count}</span>
+                        <span className="text-xs font-bold">×{count}</span>
                       </button>
                     );
                   })}
