@@ -9,11 +9,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    env:
+      # Opt into Node.js 24 for JavaScript actions before GitHub forces it by default.
+      # This workflow currently uses `cloudflare/wrangler-action@v3`, which is pinned
+      # to a Node 20 runtime inside its `action.yml`.
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
       
