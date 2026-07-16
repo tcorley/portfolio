@@ -1,3 +1,4 @@
+import { useLayoutEffect, useState } from 'react';
 import {
   isRouteErrorResponse,
   Links,
@@ -9,6 +10,87 @@ import {
 
 import type { Route } from './+types/root';
 import './app.css';
+
+const FAVICON_VERSION = '11';
+const FAVICON_LIGHT = `/favicon-light.svg?v=${FAVICON_VERSION}`;
+const FAVICON_DARK = `/favicon-dark.svg?v=${FAVICON_VERSION}`;
+const COLOR_SCHEME_COOKIE = 'color-scheme';
+
+type ColorScheme = 'light' | 'dark';
+
+function faviconFor(scheme: ColorScheme) {
+  return scheme === 'dark' ? FAVICON_DARK : FAVICON_LIGHT;
+}
+
+function colorSchemeFromCookie(cookieHeader: string | null): ColorScheme | null {
+  const match = cookieHeader?.match(/(?:^|;\s*)color-scheme=(dark|light)(?:;|$)/);
+  return match ? (match[1] as ColorScheme) : null;
+}
+
+function writeColorSchemeCookie(scheme: ColorScheme) {
+  document.cookie = `${COLOR_SCHEME_COOKIE}=${scheme}; path=/; max-age=31536000; SameSite=Lax`;
+}
+
+// Persist OS scheme ASAP so the next SSR request (refresh) emits the right icon.
+const colorSchemeCookieScript = `
+(() => {
+  const scheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
+  document.cookie = ${JSON.stringify(COLOR_SCHEME_COOKIE + '=')} + scheme + '; path=/; max-age=31536000; SameSite=Lax';
+})();
+`;
+
+export function loader({ request }: Route.LoaderArgs) {
+  const fromCookie = colorSchemeFromCookie(request.headers.get('Cookie'));
+  if (fromCookie) {
+    return { colorScheme: fromCookie };
+  }
+
+  // Available after Accept-CH negotiation on supporting browsers.
+  const hint = request.headers.get('Sec-CH-Prefers-Color-Scheme');
+  if (hint === 'dark' || hint === 'light') {
+    return { colorScheme: hint };
+  }
+
+  return { colorScheme: 'light' as const };
+}
+
+export function headers() {
+  return {
+    'Accept-CH': 'Sec-CH-Prefers-Color-Scheme',
+    Vary: 'Sec-CH-Prefers-Color-Scheme',
+  };
+}
+
+/**
+ * SSR href comes from the cookie set on the previous visit, so dark-mode
+ * refresh already has the dark icon in the first HTML paint (no light flash).
+ * Client sync only remounts the <link> when the scheme actually changes —
+ * Chromium flickers if we tear down an already-correct icon on hydrate.
+ */
+function ThemeFavicon({ colorScheme }: { colorScheme: ColorScheme }) {
+  const [href, setHref] = useState(() => faviconFor(colorScheme));
+
+  useLayoutEffect(() => {
+    const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const sync = () => {
+      const scheme: ColorScheme = darkQuery.matches ? 'dark' : 'light';
+      writeColorSchemeCookie(scheme);
+      setHref((current) => {
+        const next = faviconFor(scheme);
+        return current === next ? current : next;
+      });
+    };
+
+    sync();
+    darkQuery.addEventListener('change', sync);
+    return () => darkQuery.removeEventListener('change', sync);
+  }, []);
+
+  return <link key={href} rel='icon' href={href} type='image/svg+xml' />;
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -32,6 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           name='viewport'
           content='width=device-width, initial-scale=1, viewport-fit=cover'
         />
+        <script dangerouslySetInnerHTML={{ __html: colorSchemeCookieScript }} />
         <Meta />
         <Links />
       </head>
@@ -44,8 +127,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+  return (
+    <>
+      <ThemeFavicon colorScheme={loaderData.colorScheme} />
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

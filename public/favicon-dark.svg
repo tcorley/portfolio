@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Rolan.dev">
+  <defs>
+    <linearGradient id="rolan-gradient" x1="18" y1="14" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#bf5700" />
+      <stop offset="0.5" stop-color="#e53238" />
+      <stop offset="1" stop-color="#2867b2" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="#0f172a" />
+  <g
+    fill="none"
+    stroke="url(#rolan-gradient)"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M25 20 14 32l11 12" />
+    <path d="m39 20 11 12-11 12" />
+    <path d="m36 16-8 32" />
+  </g>
+</svg>
