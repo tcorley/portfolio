@@ -11,7 +11,7 @@ import {
 import type { Route } from './+types/root';
 import './app.css';
 
-const FAVICON_VERSION = '11';
+const FAVICON_VERSION = '12';
 const FAVICON_LIGHT = `/favicon-light.svg?v=${FAVICON_VERSION}`;
 const FAVICON_DARK = `/favicon-dark.svg?v=${FAVICON_VERSION}`;
 const COLOR_SCHEME_COOKIE = 'color-scheme';
@@ -47,7 +47,6 @@ export function loader({ request }: Route.LoaderArgs) {
     return { colorScheme: fromCookie };
   }
 
-  // Available after Accept-CH negotiation on supporting browsers.
   const hint = request.headers.get('Sec-CH-Prefers-Color-Scheme');
   if (hint === 'dark' || hint === 'light') {
     return { colorScheme: hint };
@@ -64,10 +63,8 @@ export function headers() {
 }
 
 /**
- * SSR href comes from the cookie set on the previous visit, so dark-mode
- * refresh already has the dark icon in the first HTML paint (no light flash).
- * Client sync only remounts the <link> when the scheme actually changes —
- * Chromium flickers if we tear down an already-correct icon on hydrate.
+ * SVG icon for browsers that support it. Remount on scheme change so Chromium
+ * actually swaps the tab icon.
  */
 function ThemeFavicon({ colorScheme }: { colorScheme: ColorScheme }) {
   const [href, setHref] = useState(() => faviconFor(colorScheme));
@@ -93,6 +90,23 @@ function ThemeFavicon({ colorScheme }: { colorScheme: ColorScheme }) {
 }
 
 export const links: Route.LinksFunction = () => [
+  // Raster fallbacks: Safari still doesn't reliably use SVG favicons, and
+  // browsers always probe /favicon.ico even when an SVG link is present.
+  { rel: 'icon', href: `/favicon.ico?v=${FAVICON_VERSION}`, sizes: 'any' },
+  {
+    rel: 'icon',
+    href: `/favicon-light-32.png?v=${FAVICON_VERSION}`,
+    type: 'image/png',
+    sizes: '32x32',
+    media: '(prefers-color-scheme: light)',
+  },
+  {
+    rel: 'icon',
+    href: `/favicon-dark-32.png?v=${FAVICON_VERSION}`,
+    type: 'image/png',
+    sizes: '32x32',
+    media: '(prefers-color-scheme: dark)',
+  },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
