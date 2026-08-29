@@ -1,0 +1,38 @@
+name: Build resume preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "resume/**"
+      - ".github/workflows/resume-preview.yml"
+  pull_request:
+    paths:
+      - "resume/**"
+      - ".github/workflows/resume-preview.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Render the resume
+        run: make -C resume render
+
+      - name: Save the PDF and page previews
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-preview
+          path: |
+            resume/build/resume.pdf
+            resume/build/*.png
+          if-no-files-found: error
+          retention-days: 30

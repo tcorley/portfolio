@@ -1,0 +1,2 @@
+# Keep the resume build reproducible. Upgrade intentionally and verify the PDF.
+rendercv[full]==2.8
