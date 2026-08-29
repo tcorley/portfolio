@@ -13,6 +13,12 @@
 .dev.vars*
 worker-configuration.d.ts
 
+# Resume tooling: the canonical source is public, while generated and
+# application-specific material remains local.
+/resume/.venv/
+/resume/build/
+/resume/local-applications/
+
 
 !.dev.vars.example
 !.env.example

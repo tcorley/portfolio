@@ -48,6 +48,13 @@ Create a production build:
 npm run build
 ```
 
+## Resume source
+
+The portfolio application does not serve or deploy a resume. Its canonical,
+RenderCV-based source and local PDF-preview workflow live in
+[`resume/`](resume/README.md). Generated files and job-specific versions are
+kept out of Git; see the resume guide for the public/private boundary.
+
 ## Deployment
 
 Deployment is done using the Wrangler CLI.
