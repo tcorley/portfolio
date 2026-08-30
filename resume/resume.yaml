@@ -74,7 +74,7 @@ cv:
         details: Accessibility, Localization, SEO, Site Speed, Tracking, Componentization, Test-Driven Development
 
 design:
-  theme: signal
+  theme: folio
   page:
     size: us-letter
     top_margin: 0.5in
