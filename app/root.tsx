@@ -11,7 +11,7 @@ import {
 import type { Route } from './+types/root';
 import './app.css';
 
-const FAVICON_VERSION = '12';
+const FAVICON_VERSION = '13';
 const FAVICON_LIGHT = `/favicon-light.svg?v=${FAVICON_VERSION}`;
 const FAVICON_DARK = `/favicon-dark.svg?v=${FAVICON_VERSION}`;
 const COLOR_SCHEME_COOKIE = 'color-scheme';
@@ -31,7 +31,6 @@ function writeColorSchemeCookie(scheme: ColorScheme) {
   document.cookie = `${COLOR_SCHEME_COOKIE}=${scheme}; path=/; max-age=31536000; SameSite=Lax`;
 }
 
-// Persist OS scheme ASAP so the next SSR request (refresh) emits the right icon.
 const colorSchemeCookieScript = `
 (() => {
   const scheme = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -62,10 +61,6 @@ export function headers() {
   };
 }
 
-/**
- * SVG icon for browsers that support it. Remount on scheme change so Chromium
- * actually swaps the tab icon.
- */
 function ThemeFavicon({ colorScheme }: { colorScheme: ColorScheme }) {
   const [href, setHref] = useState(() => faviconFor(colorScheme));
 
@@ -86,26 +81,23 @@ function ThemeFavicon({ colorScheme }: { colorScheme: ColorScheme }) {
     return () => darkQuery.removeEventListener('change', sync);
   }, []);
 
+  // No sizes attr on SVG — Chromium skips SVG when competing icons use sizes="any".
   return <link key={href} rel='icon' href={href} type='image/svg+xml' />;
 }
 
 export const links: Route.LinksFunction = () => [
-  // Raster fallbacks: Safari still doesn't reliably use SVG favicons, and
-  // browsers always probe /favicon.ico even when an SVG link is present.
-  { rel: 'icon', href: `/favicon.ico?v=${FAVICON_VERSION}`, sizes: 'any' },
+  // Chromium: SVG first, ICO as sized fallback (NOT sizes="any" or Chrome prefers ICO).
+  // https://css-tricks.com/favicons-how-to-make-sure-browsers-only-download-the-svg-version/
   {
     rel: 'icon',
-    href: `/favicon-light-32.png?v=${FAVICON_VERSION}`,
+    href: `/favicon-32.png?v=${FAVICON_VERSION}`,
     type: 'image/png',
     sizes: '32x32',
-    media: '(prefers-color-scheme: light)',
   },
   {
     rel: 'icon',
-    href: `/favicon-dark-32.png?v=${FAVICON_VERSION}`,
-    type: 'image/png',
+    href: `/favicon.ico?v=${FAVICON_VERSION}`,
     sizes: '32x32',
-    media: '(prefers-color-scheme: dark)',
   },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {

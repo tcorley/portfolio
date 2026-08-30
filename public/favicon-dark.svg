@@ -6,7 +6,7 @@
       <stop offset="1" stop-color="#2867b2" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="18" fill="#0f172a" />
+  <rect width="64" height="64" rx="18" fill="#f8fafc" />
   <g
     fill="none"
     stroke="url(#rolan-gradient)"
