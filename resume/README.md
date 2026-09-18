@@ -1,8 +1,11 @@
 # Resume source
 
-This directory holds the public, canonical resume source. It is separate from
-the React application: nothing here adds a route, publishes a file, or changes
-the portfolio's deployment.
+This directory holds the public, canonical resume source. The portfolio site
+links to the rendered PDF at `/resume.pdf` (https://rolan.dev/resume.pdf).
+That file is produced during the Cloudflare deploy workflow by running
+`make -C resume render` and copying `resume/build/resume.pdf` into
+`public/resume.pdf` before the app build. The separate
+`resume-preview` workflow still uploads PDF/PNG artifacts for PR review only.
 
 ## Render locally
 

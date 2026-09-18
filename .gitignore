@@ -14,10 +14,12 @@
 worker-configuration.d.ts
 
 # Resume tooling: the canonical source is public, while generated and
-# application-specific material remains local.
+# application-specific material remains local. Deploy copies the PDF into
+# public/resume.pdf so the site can serve https://rolan.dev/resume.pdf.
 /resume/.venv/
 /resume/build/
 /resume/local-applications/
+/public/resume.pdf
 
 
 !.dev.vars.example

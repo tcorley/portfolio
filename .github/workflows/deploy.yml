@@ -16,18 +16,29 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v5
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '22'
-      
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install dependencies
         run: npm install
 
+      - name: Render resume PDF
+        run: make -C resume render
+
+      - name: Publish resume for the site
+        run: cp resume/build/resume.pdf public/resume.pdf
+
       - name: Build React Router app
         run: npm run build
-      
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
