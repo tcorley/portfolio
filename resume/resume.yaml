@@ -17,14 +17,15 @@ cv:
         summary: "**Workflow Automation & Enterprise Apps (SSE Experience), 2021-2026**"
         highlights:
           - Led three generations of a workflow authoring UI (legacy to on-prem editor to no-code automation platform), enabling engineers to create, version, and execute workflows directly in the UI; authored core specs and foundations others built on.
-          - Delivered end-to-end workflow execution visibility and controls (history lists, single-run detail, summary surfaces), plus Run now triggers spanning UI, transport, and backend services.
-          - Instrumented route-level performance telemetry with per-route Core Web Vitals distributions, percentile pre-aggregation, and server route resolution, enabling targeted latency improvements and dashboards.
-          - Stood up real-user observability for an enterprise web app (~120 WAU/~370 MAU), with Core Web Vitals quality at CLS ~96% good and INP ~98% good.
+          - Shipped a cognitive Job Title filter for a sales-productivity surface (hybrid BM25 + vector) with rollout guardrails (top-K=50) and predictable ~p95 10-minute expansion latency.
+          - Stood up real-user observability for an enterprise web app (per-route Core Web Vitals distributions, percentile pre-aggregation), enabling targeted latency improvements, with CLS ~96% good and INP ~98% good.
           - Reduced JavaScript bundle size ~16% (-549 KB raw/-178 KB gzipped) by consolidating design systems and removing legacy UI code (-3,478 LOC/58 files), improving load profile and maintainability.
           - Cut CI/test feedback time ~44% (88s to 49s) across a ~6-engineer repository (~160 PRs/half), accelerating iteration speed and review throughput.
+          - Strengthened audit and compliance by migrating an authorization system to config-as-code (git-reviewed, compiled, deployed), eliminating runtime mutation surfaces and unifying environment consistency.
+          # - Delivered end-to-end workflow execution visibility and controls (history lists, single-run detail, summary surfaces), plus Run now triggers spanning UI, transport, and backend services.
+          # - Instrumented route-level performance telemetry with per-route Core Web Vitals distributions, percentile pre-aggregation, and server route resolution, enabling targeted latency improvements and dashboards.
+          # - Stood up real-user observability for an enterprise web app (~120 WAU/~370 MAU), with Core Web Vitals quality at CLS ~96% good and INP ~98% good.
           # - Increased runtime resilience in production with graceful shutdown and HTTP server timeouts to prevent dropped requests during deploys; used intent-based prefetch and short-TTL auth caching to reduce perceived latency and redundant calls.
-          # - Shipped a cognitive Job Title filter for a sales-productivity surface (hybrid BM25 + vector) with rollout guardrails (top-K=50) and predictable ~p95 10-minute expansion latency.
-          # - Strengthened audit and compliance by migrating an authorization system to config-as-code (git-reviewed, compiled, deployed), eliminating runtime mutation surfaces and unifying environment consistency.
           # - Improved auth consent UX (safe return-to redirects, styled result/error pages) and prepared a new platform UI for staging deployments with fabric quotas and registrations.
           # - Authored persona/access and usage-metrics guides for internal apps (preferences, telemetry) to improve targeted experiences.
       - company: LinkedIn
@@ -32,13 +33,14 @@ cv:
         role: ""
         summary: "**Developer Platform (Nuage / Data as a Service), 2018-2021**"
         highlights:
-          - Built an internal developer UI platform through component modularization, onboarding flows, and Storybook patterns, standardizing front-end delivery across teams.
           - Led storage reclamation in a distributed key-value tier, identifying ~60% of production stores as unused (~860/1400), then shipping the soft-to-hard deletion workflows that reclaimed them for multi-million annual savings.
-          - Authored front-end enablement docs (developer guides, lint/style, TypeScript) to uplift productivity across the organization.
+          - Built an internal developer UI platform through component modularization, onboarding flows, and Storybook patterns, standardizing front-end delivery across teams.
+          - Authored front-end enablement docs and TypeScript migration patterns for large internal apps (developer guides, lint/style), reducing runtime defects and onboarding time.
+          # - Authored front-end enablement docs (developer guides, lint/style, TypeScript) to uplift productivity across the organization.
+          # - Advanced TypeScript migration guidance and patterns for large internal apps, reducing runtime defects and onboarding time.
           # - Operationalized resource right-sizing with Resource Insights and approval workflows; published guidance and meeting notes to drive adoption.
           # - Designed dashboard UI surfaces for stream-processing visibility to improve operational insight.
           # - Drove platformization and open-source epics (UI platformization, documentation backlog), improving reuse and clarity of shared libraries.
-          # - Advanced TypeScript migration guidance and patterns for large internal apps, reducing runtime defects and onboarding time.
       - company: eBay
         position: Software Engineer II
         role: "**Software Engineer II**, eBay - San Jose, CA"
