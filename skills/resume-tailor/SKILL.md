@@ -5,10 +5,12 @@ description: Tailor this resume to a specific job description while preserving f
 
 # Resume tailoring
 
-Use `resume/resume.yaml` as the canonical, public source. Create tailored
-versions only under `resume/local-applications/` or a separate private
-repository; do not add employer-specific material to the public master without
-the user's explicit request.
+Use `resume/resume.yaml` as the canonical, public source. Active bullets are
+the single-page site default; commented bullets are reusable material for
+tailoring. Create tailored versions only under `resume/local-applications/`
+or a separate private repository (copy the YAML, uncomment/swap bullets as
+needed); do not add employer-specific material to the public master without
+the user's explicit request, and do not commit a VARIANT tagging system.
 
 ## Accuracy
 

@@ -50,10 +50,13 @@ npm run build
 
 ## Resume source
 
-The portfolio application does not serve or deploy a resume. Its canonical,
-RenderCV-based source and local PDF-preview workflow live in
-[`resume/`](resume/README.md). Generated files and job-specific versions are
-kept out of Git; see the resume guide for the public/private boundary.
+Canonical RenderCV source and local preview tooling live in
+[`resume/`](resume/README.md). The committed YAML is the single-page site
+default (extra bullets stay as YAML comments for reuse when tailoring). On
+deploy, GitHub Actions renders the PDF and copies it to `public/resume.pdf`,
+served at [https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The
+site's Resume link points there. Job-specific versions stay local/private —
+see the resume guide.
 
 ## Deployment
 
