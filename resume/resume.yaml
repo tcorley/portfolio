@@ -1,11 +1,7 @@
-# Public canonical resume source with variant tags.
-#
-# Highlights (and optional entries) may use:
-#   - text: "..."
-#     variants: [default, frontend, ...]
-# Plain strings are included in every named variant.
-# Build with: make -C resume render VARIANT=default
-# Special variant `full` includes every tagged item (may exceed one page).
+# Public, canonical resume source. Active bullets are the single-page site
+# default. Commented bullets stay here as reusable material for on-the-fly
+# tailored copies — uncomment or copy them into a private application file;
+# do not commit job-specific variants.
 
 cv:
   name: Tyler Corley
@@ -20,47 +16,29 @@ cv:
         date: Oct 2018 - present
         summary: "**Workflow Automation & Enterprise Apps (SSE Experience), 2021-2026**"
         highlights:
-          - text: Led three generations of a workflow authoring UI (legacy to on-prem editor to no-code automation platform), enabling engineers to create, version, and execute workflows directly in the UI; authored core specs and foundations others built on.
-            variants: [default, frontend, leadership]
-          - text: Delivered end-to-end workflow execution visibility and controls (history lists, single-run detail, summary surfaces), plus Run now triggers spanning UI, transport, and backend services.
-            variants: [default, frontend, platform]
-          - text: Instrumented route-level performance telemetry with per-route Core Web Vitals distributions, percentile pre-aggregation, and server route resolution, enabling targeted latency improvements and dashboards.
-            variants: [default, frontend]
-          - text: Increased runtime resilience in production with graceful shutdown and HTTP server timeouts to prevent dropped requests during deploys; used intent-based prefetch and short-TTL auth caching to reduce perceived latency and redundant calls.
-            variants: [platform]
-          - text: Stood up real-user observability for an enterprise web app (~120 WAU/~370 MAU), with Core Web Vitals quality at CLS ~96% good and INP ~98% good.
-            variants: [default, frontend, leadership]
-          - text: Reduced JavaScript bundle size ~16% (-549 KB raw/-178 KB gzipped) by consolidating design systems and removing legacy UI code (-3,478 LOC/58 files), improving load profile and maintainability.
-            variants: [default, frontend]
-          - text: Cut CI/test feedback time ~44% (88s to 49s) across a ~6-engineer repository (~160 PRs/half), accelerating iteration speed and review throughput.
-            variants: [default, platform, leadership]
-          - text: Shipped a cognitive Job Title filter for a sales-productivity surface (hybrid BM25 + vector) with rollout guardrails (top-K=50) and predictable ~p95 10-minute expansion latency.
-            variants: [frontend, platform]
-          - text: Strengthened audit and compliance by migrating an authorization system to config-as-code (git-reviewed, compiled, deployed), eliminating runtime mutation surfaces and unifying environment consistency.
-            variants: [platform, leadership]
-          - text: Improved auth consent UX (safe return-to redirects, styled result/error pages) and prepared a new platform UI for staging deployments with fabric quotas and registrations.
-            variants: [frontend]
-          - text: Authored persona/access and usage-metrics guides for internal apps (preferences, telemetry) to improve targeted experiences.
-            variants: [leadership]
+          - Led three generations of a workflow authoring UI (legacy to on-prem editor to no-code automation platform), enabling engineers to create, version, and execute workflows directly in the UI; authored core specs and foundations others built on.
+          - Delivered end-to-end workflow execution visibility and controls (history lists, single-run detail, summary surfaces), plus Run now triggers spanning UI, transport, and backend services.
+          - Instrumented route-level performance telemetry with per-route Core Web Vitals distributions, percentile pre-aggregation, and server route resolution, enabling targeted latency improvements and dashboards.
+          - Stood up real-user observability for an enterprise web app (~120 WAU/~370 MAU), with Core Web Vitals quality at CLS ~96% good and INP ~98% good.
+          - Reduced JavaScript bundle size ~16% (-549 KB raw/-178 KB gzipped) by consolidating design systems and removing legacy UI code (-3,478 LOC/58 files), improving load profile and maintainability.
+          - Cut CI/test feedback time ~44% (88s to 49s) across a ~6-engineer repository (~160 PRs/half), accelerating iteration speed and review throughput.
+          # - Increased runtime resilience in production with graceful shutdown and HTTP server timeouts to prevent dropped requests during deploys; used intent-based prefetch and short-TTL auth caching to reduce perceived latency and redundant calls.
+          # - Shipped a cognitive Job Title filter for a sales-productivity surface (hybrid BM25 + vector) with rollout guardrails (top-K=50) and predictable ~p95 10-minute expansion latency.
+          # - Strengthened audit and compliance by migrating an authorization system to config-as-code (git-reviewed, compiled, deployed), eliminating runtime mutation surfaces and unifying environment consistency.
+          # - Improved auth consent UX (safe return-to redirects, styled result/error pages) and prepared a new platform UI for staging deployments with fabric quotas and registrations.
+          # - Authored persona/access and usage-metrics guides for internal apps (preferences, telemetry) to improve targeted experiences.
       - company: LinkedIn
         position: Software Engineer
         role: ""
         summary: "**Developer Platform (Nuage / Data as a Service), 2018-2021**"
         highlights:
-          - text: Built an internal developer UI platform through component modularization, onboarding flows, and Storybook patterns, standardizing front-end delivery across teams.
-            variants: [default, frontend, leadership]
-          - text: Operationalized resource right-sizing with Resource Insights and approval workflows; published guidance and meeting notes to drive adoption.
-            variants: [platform, leadership]
-          - text: Led storage reclamation in a distributed key-value tier, identifying ~60% of production stores as unused (~860/1400), then shipping the soft-to-hard deletion workflows that reclaimed them for multi-million annual savings.
-            variants: [default, platform, leadership]
-          - text: Authored front-end enablement docs (developer guides, lint/style, TypeScript) to uplift productivity across the organization.
-            variants: [default, frontend]
-          - text: Designed dashboard UI surfaces for stream-processing visibility to improve operational insight.
-            variants: [full]
-          - text: Drove platformization and open-source epics (UI platformization, documentation backlog), improving reuse and clarity of shared libraries.
-            variants: [platform]
-          - text: Advanced TypeScript migration guidance and patterns for large internal apps, reducing runtime defects and onboarding time.
-            variants: [leadership]
+          - Built an internal developer UI platform through component modularization, onboarding flows, and Storybook patterns, standardizing front-end delivery across teams.
+          - Led storage reclamation in a distributed key-value tier, identifying ~60% of production stores as unused (~860/1400), then shipping the soft-to-hard deletion workflows that reclaimed them for multi-million annual savings.
+          - Authored front-end enablement docs (developer guides, lint/style, TypeScript) to uplift productivity across the organization.
+          # - Operationalized resource right-sizing with Resource Insights and approval workflows; published guidance and meeting notes to drive adoption.
+          # - Designed dashboard UI surfaces for stream-processing visibility to improve operational insight.
+          # - Drove platformization and open-source epics (UI platformization, documentation backlog), improving reuse and clarity of shared libraries.
+          # - Advanced TypeScript migration guidance and patterns for large internal apps, reducing runtime defects and onboarding time.
       - company: eBay
         position: Software Engineer II
         role: "**Software Engineer II**, eBay - San Jose, CA"
@@ -68,26 +46,16 @@ cv:
         start_date: 2015-06
         end_date: 2018-10
         highlights:
-          - text: Converted an existing page into eBay's new modern technology stack from the ground up.
-            variants: [default, frontend]
-          - text: Designed and integrated a popover modal displaying notifications for the mobile web experience.
-            variants: [full]
-          - text: Consolidated multiple modules from several pages into one in an older technology stack.
-            variants: [platform]
-          - text: Assisted in the completion of tasks and bug fixes for the My eBay team.
-            variants: [full]
-          - text: "Developed new eBay pages as part of a structured data and SEO initiative using Node.js, Marko, Express, Lasso, and Less, with tests in Mocha, Karma, and Istanbul."
-            variants: [default, frontend]
-          - text: Created an Accelerated Mobile Pages (AMP) version of the page.
-            variants: [default, frontend]
-          - text: Presented a tech talk to front-end engineers detailing the pros and cons of AMP.
-            variants: [leadership]
-          - text: Participated in several company-wide hackathons and expos, earning multiple awards.
-            variants: [leadership]
-          - text: Led releases and managed the continuous integration pipeline and code repository RTB tasks.
-            variants: [default, platform, leadership]
-          - text: Aided in features and bug fixes for the eBay iOS application.
-            variants: [full]
+          - Converted an existing page into eBay's new modern technology stack from the ground up.
+          - "Developed new eBay pages as part of a structured data and SEO initiative using Node.js, Marko, Express, Lasso, and Less, with tests in Mocha, Karma, and Istanbul."
+          - Created an Accelerated Mobile Pages (AMP) version of the page.
+          - Led releases and managed the continuous integration pipeline and code repository RTB tasks.
+          # - Designed and integrated a popover modal displaying notifications for the mobile web experience.
+          # - Consolidated multiple modules from several pages into one in an older technology stack.
+          # - Assisted in the completion of tasks and bug fixes for the My eBay team.
+          # - Presented a tech talk to front-end engineers detailing the pros and cons of AMP.
+          # - Participated in several company-wide hackathons and expos, earning multiple awards.
+          # - Aided in features and bug fixes for the eBay iOS application.
     earlier_experience:
       - Software Development Intern - Union (formerly Tabbedout), McKesson Specialty Health (2013-2014)
     education:

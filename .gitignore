@@ -19,7 +19,6 @@ worker-configuration.d.ts
 /resume/.venv/
 /resume/build/
 /resume/local-applications/
-/resume/resume.selected.yaml
 /resume/**/__pycache__/
 /public/resume.pdf
 

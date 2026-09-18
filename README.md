@@ -51,15 +51,12 @@ npm run build
 ## Resume source
 
 Canonical RenderCV source and local preview tooling live in
-[`resume/`](resume/README.md). Highlights are tagged with variants
-(`default`, `frontend`, `platform`, `leadership`, or `full`). On deploy,
-GitHub Actions renders the **default** (single-page) variant and copies it to
-`public/resume.pdf`, served at
-[https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The site's
-Resume link points there. Build another profile locally with
-`make -C resume render VARIANT=frontend` (or via the resume-preview workflow's
-`workflow_dispatch` input). Generated files and job-specific versions stay out
-of Git; see the resume guide for details.
+[`resume/`](resume/README.md). The committed YAML is the single-page site
+default (extra bullets stay as YAML comments for reuse when tailoring). On
+deploy, GitHub Actions renders the PDF and copies it to `public/resume.pdf`,
+served at [https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The
+site's Resume link points there. Job-specific versions stay local/private —
+see the resume guide.
 
 ## Deployment
 

@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Render default resume PDF
-        run: make -C resume render VARIANT=default
+      - name: Render resume PDF
+        run: make -C resume render
 
       - name: Publish resume for the site
         run: cp resume/build/resume.pdf public/resume.pdf

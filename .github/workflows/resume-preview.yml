@@ -11,18 +11,6 @@ on:
       - "resume/**"
       - ".github/workflows/resume-preview.yml"
   workflow_dispatch:
-    inputs:
-      variant:
-        description: Resume variant to render
-        required: true
-        default: default
-        type: choice
-        options:
-          - default
-          - frontend
-          - platform
-          - leadership
-          - full
 
 jobs:
   build:
@@ -37,12 +25,12 @@ jobs:
           python-version: "3.12"
 
       - name: Render the resume
-        run: make -C resume render VARIANT=${{ github.event.inputs.variant || 'default' }}
+        run: make -C resume render
 
       - name: Save the PDF and page previews
         uses: actions/upload-artifact@v4
         with:
-          name: resume-preview-${{ github.event.inputs.variant || 'default' }}
+          name: resume-preview
           path: |
             resume/build/resume.pdf
             resume/build/*.png

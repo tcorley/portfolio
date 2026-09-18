@@ -3,12 +3,8 @@ VENV ?= .venv
 RENDERCV := $(VENV)/bin/rendercv
 SOURCE := resume.yaml
 BUILD := build
-VARIANT ?= default
-# Selected YAML must live next to the `folio/` theme folder for RenderCV.
-SELECTED := resume.selected.yaml
-SELECT := $(VENV)/bin/python select_variant.py
 
-.PHONY: install select render preview variants
+.PHONY: install render preview
 
 install: $(RENDERCV)
 
@@ -17,14 +13,8 @@ $(RENDERCV): requirements.txt
 	$(VENV)/bin/python -m pip install --upgrade pip
 	$(VENV)/bin/python -m pip install -r requirements.txt
 
-select: $(RENDERCV)
-	$(SELECT) --source $(SOURCE) --variant $(VARIANT) --output $(SELECTED)
+render: $(RENDERCV)
+	$(RENDERCV) render $(SOURCE) --output-folder $(BUILD) --pdf-path $(BUILD)/resume.pdf
 
-render: select
-	$(RENDERCV) render $(SELECTED) --output-folder $(BUILD) --pdf-path $(BUILD)/resume.pdf
-
-preview: select
-	$(RENDERCV) render $(SELECTED) --output-folder $(BUILD) --pdf-path $(BUILD)/resume.pdf --watch
-
-variants:
-	@echo "Known variants: default frontend platform leadership full"
+preview: $(RENDERCV)
+	$(RENDERCV) render $(SOURCE) --output-folder $(BUILD) --pdf-path $(BUILD)/resume.pdf --watch
