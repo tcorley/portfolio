@@ -20,7 +20,7 @@ worker-configuration.d.ts
 /resume/build/
 /resume/local-applications/
 /resume/resume.selected.yaml
-/resume/folio/__pycache__/
+/resume/**/__pycache__/
 /public/resume.pdf
 
 
