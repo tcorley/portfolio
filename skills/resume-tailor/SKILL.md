@@ -5,10 +5,12 @@ description: Tailor this resume to a specific job description while preserving f
 
 # Resume tailoring
 
-Use `resume/resume.yaml` as the canonical, public source. Create tailored
-versions only under `resume/local-applications/` or a separate private
-repository; do not add employer-specific material to the public master without
-the user's explicit request.
+Use `resume/resume.yaml` as the canonical, public source. Prefer selecting an
+existing variant (`make -C resume render VARIANT=frontend`) or retagging
+`variants` on highlights before copying. Create tailored versions only under
+`resume/local-applications/` or a separate private repository; do not add
+employer-specific material to the public master without the user's explicit
+request.
 
 ## Accuracy
 
