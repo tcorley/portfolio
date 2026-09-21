@@ -30,12 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Render resume PDF
-        run: make -C resume render
-
-      - name: Publish resume for the site
-        run: cp resume/build/resume.pdf public/resume.pdf
-
+      # Vite's resumePdfPlugin renders RenderCV → public/resume.pdf during
+      # `npm run build`, matching Cloudflare Workers Builds preview deploys.
       - name: Build React Router app
         run: npm run build
 

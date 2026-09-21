@@ -2,10 +2,12 @@
 
 This directory holds the public, canonical resume source. The portfolio site
 links to the rendered PDF at `/resume.pdf` (https://rolan.dev/resume.pdf).
-That file is produced during the Cloudflare deploy workflow by running
-`make -C resume render` and copying `resume/build/resume.pdf` into
-`public/resume.pdf` before the app build. The separate `resume-preview`
-workflow still uploads PDF/PNG artifacts for PR review only.
+
+Production Vite builds run RenderCV via `vite-plugin-resume-pdf.ts` (same as
+`npm run build:resume`): `make -C resume render`, then copy
+`resume/build/resume.pdf` → `public/resume.pdf`. That covers GitHub Actions
+deploys and Cloudflare Workers Builds branch previews. The separate
+`resume-preview` workflow still uploads PDF/PNG artifacts for PR review only.
 
 The committed YAML is the single-page **site default**. Extra bullets are
 kept nearby as YAML comments so humans or agents can uncomment or copy them

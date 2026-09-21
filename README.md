@@ -52,11 +52,14 @@ npm run build
 
 Canonical RenderCV source and local preview tooling live in
 [`resume/`](resume/README.md). The committed YAML is the single-page site
-default (extra bullets stay as YAML comments for reuse when tailoring). On
-deploy, GitHub Actions renders the PDF and copies it to `public/resume.pdf`,
-served at [https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The
-site's Resume link points there. Job-specific versions stay local/private —
-see the resume guide.
+default (extra bullets stay as YAML comments for reuse when tailoring).
+
+Every production Vite build (locally, GitHub Actions, and Cloudflare Workers
+Builds previews) runs RenderCV and copies the PDF to `public/resume.pdf`,
+served at `/resume.pdf` — including branch preview URLs and
+[https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The site's
+Resume link points there. Job-specific versions stay local/private — see the
+resume guide. Requires Python 3 + `make` (Workers Builds includes both).
 
 ## Deployment
 

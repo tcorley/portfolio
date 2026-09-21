@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "react-router build",
+		"build:resume": "make -C resume render && cp resume/build/resume.pdf public/resume.pdf",
 		"cf-typegen": "wrangler types",
 		"deploy": "npm run build && wrangler deploy",
 		"dev": "react-router dev --host",
