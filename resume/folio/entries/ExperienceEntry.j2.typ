@@ -7,21 +7,8 @@
 {% set date_text = entry.date_and_location_column|strip %}
 {% set main_lines = entry.main_column.splitlines() %}
 {% set first_row_lines_content = main_lines[:first_row_lines] %}
-{% set needs_continuation_inset = first_row_lines_content and "eBay" in first_row_lines_content[0] %}
 #regular-entry(
   [
-{% if needs_continuation_inset %}
-    #v(8pt)
-    #block(below: 7pt)[
-      #grid(
-        columns: (5pt, auto),
-        column-gutter: 6pt,
-        align: horizon,
-        [#box(width: 5pt, height: 5pt, fill: rgb("#D64E37"), radius: 1pt)],
-        [#text(font: "Open Sauce Sans", size: 7.4pt, weight: "semibold", fill: rgb("#607075"), tracking: 0.55pt)[EXPERIENCE / CONTINUED]],
-      )
-    ]
-{% endif %}
 {% for line in first_row_lines_content %}
 {% if line.startswith("#summary[") %}
 {% set summary_content = line[9:-1] %}
@@ -40,9 +27,6 @@
 {% endfor %}
   ],
   [
-{% if needs_continuation_inset %}
-    #v(20pt)
-{% endif %}
 {% if date_text %}
     #box(fill: rgb("#E7EDEC"), radius: 2pt, inset: (x: 4.5pt, y: 2.4pt))[
       #text(font: "Open Sauce Sans", size: 8pt, weight: "semibold", fill: rgb("#405B63"))[{{ date_text }}]

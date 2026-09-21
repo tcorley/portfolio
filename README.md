@@ -50,10 +50,16 @@ npm run build
 
 ## Resume source
 
-The portfolio application does not serve or deploy a resume. Its canonical,
-RenderCV-based source and local PDF-preview workflow live in
-[`resume/`](resume/README.md). Generated files and job-specific versions are
-kept out of Git; see the resume guide for the public/private boundary.
+Canonical RenderCV source and local preview tooling live in
+[`resume/`](resume/README.md). The committed YAML is the single-page site
+default (extra bullets stay as YAML comments for reuse when tailoring).
+
+Every production Vite build (locally, GitHub Actions, and Cloudflare Workers
+Builds previews) runs RenderCV and copies the PDF to `public/resume.pdf`,
+served at `/resume.pdf` — including branch preview URLs and
+[https://rolan.dev/resume.pdf](https://rolan.dev/resume.pdf). The site's
+Resume link points there. Job-specific versions stay local/private — see the
+resume guide. Requires Python 3 + `make` (Workers Builds includes both).
 
 ## Deployment
 

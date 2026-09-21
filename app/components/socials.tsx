@@ -1,4 +1,5 @@
 import { SiBluesky, SiGithub } from '@icons-pack/react-simple-icons';
+import { FileText } from 'lucide-react';
 import InBugBlack from '../main/InBug-Black.png';
 import InBugWhite from '../main/InBug-White.png';
 
@@ -20,6 +21,12 @@ type SocialLink = SocialLinkIcon | SocialLinkImage;
 
 export function Socials() {
   const socialLinks: SocialLink[] = [
+    {
+      type: 'icon',
+      icon: FileText,
+      label: 'resume',
+      href: '/resume.pdf',
+    },
     {
       type: 'icon',
       icon: SiGithub,
