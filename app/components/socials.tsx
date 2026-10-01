@@ -1,19 +1,23 @@
 import { SiBluesky, SiGithub } from '@icons-pack/react-simple-icons';
 import { FileText } from 'lucide-react';
+import {
+  trackLinkClick,
+  type TrackableLinkId,
+} from '../lib/track-link-click';
 import InBugBlack from '../main/InBug-Black.png';
 import InBugWhite from '../main/InBug-White.png';
 
 type SocialLinkIcon = {
   type: 'icon';
   icon: React.ComponentType<{ size: number; className?: string }>;
-  label: string;
+  label: TrackableLinkId;
   href: string;
 };
 
 type SocialLinkImage = {
   type: 'image';
   src: string;
-  label: string;
+  label: TrackableLinkId;
   href: string;
 };
 
@@ -54,6 +58,7 @@ export function Socials() {
           href={social.href}
           target='_blank'
           rel='noopener noreferrer'
+          onClick={() => trackLinkClick(social.label, social.href)}
           className='group flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 rounded-full shadow-sm dark:shadow-slate-800 hover:shadow-md dark:hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5'
           aria-label={social.label}
         >
