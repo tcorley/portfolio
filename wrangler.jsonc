@@ -14,18 +14,33 @@
 	"routes": [{
 		"pattern": "rolan.dev",
 		"custom_domain": true
-	}]
+	}],
+	/**
+	 * Workers Analytics Engine — portfolio metrics (resume opens + link clicks).
+	 * Dataset is created automatically on first writeDataPoint.
+	 * https://developers.cloudflare.com/analytics/analytics-engine/
+	 */
+	"analytics_engine_datasets": [
+		{
+			"binding": "METRICS",
+			"dataset": "portfolio_metrics"
+		}
+	],
+	/**
+	 * Static assets are supplied by @cloudflare/vite-plugin at build time
+	 * (client build output). Binding + selective run_worker_first let the
+	 * Worker count /resume.pdf before serving the same static PDF.
+	 * https://developers.cloudflare.com/workers/static-assets/binding/
+	 */
+	"assets": {
+		"binding": "ASSETS",
+		"run_worker_first": ["/resume.pdf"]
+	}
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
 	 */
 	// "placement": { "mode": "smart" }
-	/**
-	 * Bindings
-	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
-	 * databases, object storage, AI inference, real-time communication and more.
-	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
-	 */
 	/**
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
@@ -35,11 +50,6 @@
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
-	/**
-	 * Static Assets
-	 * https://developers.cloudflare.com/workers/static-assets/binding/
-	 */
-	// "assets": { "directory": "./public/", "binding": "ASSETS" }
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
