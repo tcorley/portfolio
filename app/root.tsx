@@ -41,7 +41,9 @@ const colorSchemeCookieScript = `
 })();
 `;
 
-export function loader({ request }: Route.LoaderArgs) {
+export function loader({
+  request,
+}: Route.LoaderArgs): { colorScheme: ColorScheme } {
   const fromCookie = colorSchemeFromCookie(request.headers.get('Cookie'));
   if (fromCookie) {
     return { colorScheme: fromCookie };
@@ -52,7 +54,7 @@ export function loader({ request }: Route.LoaderArgs) {
     return { colorScheme: hint };
   }
 
-  return { colorScheme: 'light' as const };
+  return { colorScheme: 'light' };
 }
 
 export function headers() {
