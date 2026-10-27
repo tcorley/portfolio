@@ -51,7 +51,7 @@ export function Socials() {
     },
   ];
   return (
-    <div className='flex gap-4 justify-center flex-wrap'>
+    <div className='flex flex-wrap items-center justify-center gap-3 sm:gap-4'>
       {socialLinks.map((social) => (
         <a
           key={social.label}
@@ -59,35 +59,37 @@ export function Socials() {
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => trackLinkClick(social.label, social.href)}
-          className='group flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 rounded-full shadow-sm dark:shadow-slate-800 hover:shadow-md dark:hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5'
+          className='group inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-white px-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg'
           aria-label={social.label}
         >
-          {social.type === 'icon' ? (
-            <social.icon
-              size={20}
-              className='text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors'
-            />
-          ) : social.label === 'linkedin' ? (
-            <>
-              <img
-                src={InBugBlack}
-                alt={social.label}
-                className='w-5 h-5 block dark:hidden text-slate-700 group-hover:text-slate-900 transition-colors'
+          <span className='inline-flex size-5 shrink-0 items-center justify-center'>
+            {social.type === 'icon' ? (
+              <social.icon
+                size={20}
+                className='text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors'
               />
+            ) : social.label === 'linkedin' ? (
+              <>
+                <img
+                  src={InBugBlack}
+                  alt=''
+                  className='size-5 block dark:hidden'
+                />
+                <img
+                  src={InBugWhite}
+                  alt=''
+                  className='size-5 hidden dark:block'
+                />
+              </>
+            ) : (
               <img
-                src={InBugWhite}
-                alt={social.label}
-                className='w-5 h-5 hidden dark:block text-slate-200 group-hover:text-white transition-colors'
+                src={social.src}
+                alt=''
+                className='size-5'
               />
-            </>
-          ) : (
-            <img
-              src={social.src}
-              alt={social.label}
-              className='w-5 h-5 text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors'
-            />
-          )}
-          <span className='text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white'>
+            )}
+          </span>
+          <span className='text-sm font-medium leading-none text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white'>
             {social.label}
           </span>
         </a>
