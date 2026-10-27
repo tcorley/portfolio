@@ -16,40 +16,74 @@ type SocialLinkIcon = {
 
 type SocialLinkImage = {
   type: 'image';
-  src: string;
   label: TrackableLinkId;
   href: string;
 };
 
 type SocialLink = SocialLinkIcon | SocialLinkImage;
 
+const socialLinks: SocialLink[] = [
+  {
+    type: 'icon',
+    icon: FileText,
+    label: 'resume',
+    href: '/resume.pdf',
+  },
+  {
+    type: 'icon',
+    icon: SiGithub,
+    label: 'github',
+    href: 'https://github.com/tcorley',
+  },
+  {
+    type: 'image',
+    label: 'linkedin',
+    href: 'https://linkedin.com/in/tcorley',
+  },
+  {
+    type: 'icon',
+    icon: SiBluesky,
+    label: 'bluesky',
+    href: 'https://bsky.app/profile/corley.rocks',
+  },
+];
+
+/**
+ * Equal pill boxes at every breakpoint.
+ * w-32 (128px) fits the longest label ("linkedin"/"bluesky") with icon + padding.
+ */
+const PILL_CLASS =
+  'group inline-flex h-11 w-32 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg';
+
+const ICON_SLOT =
+  'inline-flex size-5 shrink-0 items-center justify-center text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white';
+
+function SocialIcon({ social }: { social: SocialLink }) {
+  if (social.type === 'icon') {
+    // Solid brand marks fill the viewBox more than Lucide strokes — slight optical nudge
+    const px = social.label === 'resume' ? 18 : 16;
+    return <social.icon size={px} aria-hidden='true' />;
+  }
+
+  return (
+    <>
+      <img
+        src={InBugBlack}
+        alt=''
+        aria-hidden='true'
+        className='block h-[15px] w-auto max-w-[17px] object-contain dark:hidden'
+      />
+      <img
+        src={InBugWhite}
+        alt=''
+        aria-hidden='true'
+        className='hidden h-[15px] w-auto max-w-[17px] object-contain dark:block'
+      />
+    </>
+  );
+}
+
 export function Socials() {
-  const socialLinks: SocialLink[] = [
-    {
-      type: 'icon',
-      icon: FileText,
-      label: 'resume',
-      href: '/resume.pdf',
-    },
-    {
-      type: 'icon',
-      icon: SiGithub,
-      label: 'github',
-      href: 'https://github.com/tcorley',
-    },
-    {
-      type: 'image',
-      src: '', // will be handled in render
-      label: 'linkedin',
-      href: 'https://linkedin.com/in/tcorley',
-    },
-    {
-      type: 'icon',
-      icon: SiBluesky,
-      label: 'bluesky',
-      href: 'https://bsky.app/profile/corley.rocks',
-    },
-  ];
   return (
     <div className='flex flex-wrap items-center justify-center gap-3 sm:gap-4'>
       {socialLinks.map((social) => (
@@ -59,37 +93,13 @@ export function Socials() {
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => trackLinkClick(social.label, social.href)}
-          className='group inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-white px-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg'
+          className={PILL_CLASS}
           aria-label={social.label}
         >
-          <span className='inline-flex size-5 shrink-0 items-center justify-center'>
-            {social.type === 'icon' ? (
-              <social.icon
-                size={20}
-                className='text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors'
-              />
-            ) : social.label === 'linkedin' ? (
-              <>
-                <img
-                  src={InBugBlack}
-                  alt=''
-                  className='size-5 block dark:hidden'
-                />
-                <img
-                  src={InBugWhite}
-                  alt=''
-                  className='size-5 hidden dark:block'
-                />
-              </>
-            ) : (
-              <img
-                src={social.src}
-                alt=''
-                className='size-5'
-              />
-            )}
+          <span className={ICON_SLOT}>
+            <SocialIcon social={social} />
           </span>
-          <span className='text-sm font-medium leading-none text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white'>
+          <span className='translate-y-px text-sm font-medium leading-none text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white'>
             {social.label}
           </span>
         </a>
