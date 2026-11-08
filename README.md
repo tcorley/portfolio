@@ -50,10 +50,11 @@ npm run build
 
 ## Resume source
 
-The portfolio application does not serve or deploy a resume. Its canonical,
-RenderCV-based source and local PDF-preview workflow live in
-[`resume/`](resume/README.md). Generated files and job-specific versions are
-kept out of Git; see the resume guide for the public/private boundary.
+The canonical RenderCV-based source and local PDF-preview workflow live in
+[`resume/`](resume/README.md). The deployment workflow renders the source and
+includes the generated PDF at [`/resume.pdf`](https://rolan.dev/resume.pdf).
+Generated files and job-specific versions are kept out of Git; see the resume
+guide for the public/private boundary.
 
 ## Deployment
 

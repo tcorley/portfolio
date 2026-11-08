@@ -1,8 +1,9 @@
 # Resume source
 
-This directory holds the public, canonical resume source. It is separate from
-the React application: nothing here adds a route, publishes a file, or changes
-the portfolio's deployment.
+This directory holds the public, canonical resume source. The portfolio's
+deployment workflow renders it and serves the result at
+[`https://rolan.dev/resume.pdf`](https://rolan.dev/resume.pdf). The generated
+PDF itself remains out of Git.
 
 ## Render locally
 
@@ -14,7 +15,8 @@ make -C resume render
 ```
 
 The resulting PDF and page-preview PNGs are written to `resume/build/`, which
-is intentionally ignored by Git. To rebuild automatically while editing, run:
+is intentionally ignored by Git. During deployment, the workflow copies the
+PDF into the site's build output. To rebuild automatically while editing, run:
 
 ```sh
 make -C resume preview

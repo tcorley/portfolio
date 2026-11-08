@@ -1,4 +1,5 @@
 import { SiBluesky, SiGithub } from '@icons-pack/react-simple-icons';
+import { FileText } from 'lucide-react';
 import InBugBlack from '../main/InBug-Black.png';
 import InBugWhite from '../main/InBug-White.png';
 
@@ -37,6 +38,12 @@ export function Socials() {
       icon: SiBluesky,
       label: 'bluesky',
       href: 'https://bsky.app/profile/corley.rocks',
+    },
+    {
+      type: 'icon',
+      icon: FileText,
+      label: 'résumé',
+      href: '/resume.pdf',
     },
   ];
   return (

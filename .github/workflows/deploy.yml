@@ -21,9 +21,19 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       
       - name: Install dependencies
         run: npm install
+
+      - name: Build public resume PDF
+        run: |
+          make -C resume render
+          cp resume/build/resume.pdf public/resume.pdf
 
       - name: Build React Router app
         run: npm run build
