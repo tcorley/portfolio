@@ -140,7 +140,9 @@ export function FeaturedWork() {
       {/* Lead case study */}
       <article className='animate-fade-up' style={{ animationDelay: '0.08s' }}>
         <p className='mb-3 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400'>
-          <span className='rainbow-text font-semibold'>{lead.org}</span>
+          <span className='font-semibold text-slate-800 dark:text-slate-200'>
+            {lead.org}
+          </span>
           <span className='mx-2 text-slate-300 dark:text-slate-600' aria-hidden='true'>
             ·
           </span>
