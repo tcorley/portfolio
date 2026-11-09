@@ -53,7 +53,7 @@ const socialLinks: SocialLink[] = [
  * w-32 (128px) fits the longest label ("linkedin"/"bluesky") with icon + padding.
  */
 const PILL_CLASS =
-  'group inline-flex h-11 w-32 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg';
+  'group inline-flex h-11 w-32 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 shadow-sm transition-all duration-300 hover:shadow-md motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg';
 
 const ICON_SLOT =
   'inline-flex size-5 shrink-0 items-center justify-center text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white';

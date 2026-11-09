@@ -1,20 +1,20 @@
 import { Code2 } from 'lucide-react';
 import Memoji from './Memoji.png';
-// import { ContactMe } from '../components/contact-me';
+import { ContactMe } from '../components/contact-me';
 // import { FeaturedWork } from '../components/featured-work';
 import { Socials } from '../components/socials';
 
 export function Main() {
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-gray-900 dark:via-gray-950 dark:to-gray-950 transition-colors duration-500'>
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-gray-900 dark:via-gray-950 dark:to-gray-950 transition-colors duration-500 motion-reduce:transition-none'>
       <div className='max-w-6xl mx-auto px-6 py-16 md:py-24'>
-        <header className='mb-20 animate-fadeIn text-center'>
+        <header className='mb-12 md:mb-16 text-center'>
           <div className='flex flex-col items-center gap-8'>
             <div className='max-w-4xl'>
               <div className='flex flex-row justify-between'>
                 <div className='inline-flex items-center gap-2 mb-6 text-slate-600 dark:text-slate-400'>
                   <Code2 size={20} />
-                  <span className='text-sm font-medium tracking-wide'>
+                  <span className='font-display text-sm font-semibold tracking-[0.14em]'>
                     ROLAN.DEV
                   </span>
                 </div>
@@ -28,7 +28,7 @@ export function Main() {
                 </div>
               </div>
 
-              <h1 className='text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight dark:text-slate-100'>
+              <h1 className='font-display text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight tracking-tight dark:text-slate-100'>
                 <span className='sm:whitespace-nowrap'>
                   hi, i'm tyler <span className='rainbow-text mx-1'>rolan</span>{' '}
                   corley
@@ -36,9 +36,9 @@ export function Main() {
               </h1>
 
               <p className='text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed'>
-                software engineer at linkedin dot com building with modern web
-                technologies. budding photographer, aspiring craftsman, and an
-                overall curious human
+                senior software engineer at LinkedIn building web platforms and
+                workflow systems with React and TypeScript. budding
+                photographer, aspiring craftsman, and an overall curious human
               </p>
 
               <Socials />
@@ -54,9 +54,10 @@ export function Main() {
           </div>
         </header>
 
+        {/* Featured work stays off until real project content lands */}
         {/* <FeaturedWork /> */}
 
-        {/* <ContactMe /> */}
+        <ContactMe />
       </div>
     </div>
   );
