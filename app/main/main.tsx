@@ -1,6 +1,6 @@
 import { Code2 } from 'lucide-react';
 import Memoji from './Memoji.png';
-// import { FeaturedWork } from '../components/featured-work';
+import { FeaturedWork } from '../components/featured-work';
 import { Socials } from '../components/socials';
 
 export function Main() {
@@ -53,8 +53,7 @@ export function Main() {
           </div>
         </header>
 
-        {/* Featured work stays off until real project content lands */}
-        {/* <FeaturedWork /> */}
+        <FeaturedWork />
       </div>
     </div>
   );
