@@ -1,41 +1,33 @@
 import { ArrowUpRight } from 'lucide-react';
 
-type Outcome = string;
-
 type FeaturedEntry = {
   org: string;
   era: string;
   title: string;
   hook: string;
-  outcomes: Outcome[];
+  outcomes: string[];
   href?: string;
   hrefLabel?: string;
   note?: string;
 };
 
-const lead = {
+const lead: FeaturedEntry & {
+  metrics: { label: string; value: string }[];
+} = {
   org: 'LinkedIn',
   era: 'Senior Software Engineer · ~2021–present',
   title: 'Workflow automation',
-  problem:
-    'Internal teams needed to automate cross-system work without waiting on engineers to hand-roll every flow. Authoring was fragmented across generations of UI; the job was to make automation something people could own end to end.',
-  owned: [
-    'Led three generations of the workflow authoring experience — legacy UI → on-prem editor → no-code automation platform — so engineers could create, version, and run workflows in the product.',
-    'Authored core specs and platform foundations that others built on, not just a feature slice.',
-    'Partnered across UI, transport, and backend so create / version / execute stayed coherent, with observability, performance budgets, and compliance treated as production concerns.',
+  hook: 'Led three generations of a workflow authoring UI — legacy → on-prem editor → no-code — so engineers could create, version, and run workflows in the product. Wrote the specs and foundations others built on.',
+  outcomes: [
+    'Also shipped a cognitive Job Title filter (hybrid BM25 + vector, top-K=50); ~p95 ~10 min for async expansion, not interactive search.',
+    'Treated the surface like production software: observability, performance budgets, compliance.',
   ],
-  secondAngle: {
-    title: 'Also shipped: hybrid retrieval filter',
-    body: 'On a sales-productivity surface I shipped a cognitive Job Title filter — hybrid BM25 + vector retrieval with rollout guardrails (top-K=50). Expansion work targets a predictable ~p95 latency (~10 minutes for the async expansion step, not interactive search).',
-  },
   metrics: [
     { label: 'CLS good', value: '~96%' },
     { label: 'INP good', value: '~98%' },
     { label: 'JS bundle', value: '−16%' },
     { label: 'CI feedback', value: '−44%' },
   ],
-  closing:
-    'Real-user Core Web Vitals stayed healthy while we cut the JS bundle ~16% and CI feedback ~44%. Happy to walk through the arc — details also live on the resume.',
 };
 
 const smaller: FeaturedEntry[] = [
@@ -43,37 +35,33 @@ const smaller: FeaturedEntry[] = [
     org: 'LinkedIn',
     era: 'Developer Platform · ~2018–2021',
     title: 'Reclaiming unused storage',
-    hook: 'Most of the distributed key-value tier looked “in use” until we measured it — then we proved ~60% of production stores (~860 of ~1400) were unused and shipped the soft→hard deletion path that got the space back.',
+    hook: 'Measured a distributed key-value tier that looked fully used — ~60% of production stores (~860 / ~1400) were unused.',
     outcomes: [
-      'Identified ~60% of production stores as unused (~860 / ~1400).',
-      'Shipped soft-to-hard deletion workflows that reclaimed capacity.',
-      'Public resume framing: multi-million annual savings from reclaimed capacity.',
+      'Shipped soft→hard deletion workflows that reclaimed the capacity.',
+      'Public resume framing: multi-million annual savings.',
     ],
-    note: 'Internal platform work — ask me for a walkthrough.',
+    note: 'Ask me for a walkthrough.',
   },
   {
     org: 'LinkedIn',
     era: 'Developer Platform',
     title: 'Internal UI platform',
-    hook: 'Turned one-off front-end delivery into shared patterns — modular components, onboarding flows, Storybook — plus TypeScript migration guidance so large internal apps stopped reinventing the wheel.',
+    hook: 'Turned one-off front-end delivery into shared patterns — components, onboarding flows, Storybook, TypeScript migration guides.',
     outcomes: [
-      'Component modularization, onboarding flows, and Storybook patterns for teams.',
-      'Front-end enablement docs and TypeScript migration patterns (lint/style, developer guides).',
+      'Standardized delivery across internal teams.',
       'Aimed at fewer runtime defects and faster onboarding.',
     ],
     href: 'https://github.com/tcorley/storybook-router',
     hrefLabel: 'related: storybook-router',
-    note: 'Open-source decorator is adjacent craft, not the internal platform itself.',
   },
   {
     org: 'rolan.dev',
     era: 'Ongoing',
     title: 'This site & resume pipeline',
-    hook: 'The portfolio is itself a small product: React Router 7 + Tailwind v4 on Cloudflare Workers, with a YAML→PDF resume pipeline as the single public source of truth.',
+    hook: 'React Router 7 + Tailwind v4 on Cloudflare Workers, with a YAML→PDF resume as the single public source of truth.',
     outcomes: [
-      'SSR personal site at the edge with click-tracked social egress.',
-      'Resume rendered from resume/resume.yaml → /resume.pdf.',
-      'Featured work ships only when the copy is real — no stub projects.',
+      'SSR at the edge; click-tracked social egress.',
+      'Resume from resume/resume.yaml → /resume.pdf.',
     ],
     href: 'https://github.com/tcorley/portfolio',
     hrefLabel: 'source on github',
@@ -82,13 +70,11 @@ const smaller: FeaturedEntry[] = [
     org: 'eBay',
     era: 'Software Engineer II · ~2015–2018',
     title: 'Modern stack + AMP',
-    hook: 'Took an existing eBay page onto the then-new Node/Marko stack and shipped an Accelerated Mobile Pages version as part of a structured-data / SEO push — early mobile-performance work that still reads.',
+    hook: 'Moved an existing eBay page onto the then-new Node/Marko stack and shipped an AMP version for a structured-data / SEO push.',
     outcomes: [
-      'Ground-up conversion onto eBay’s modern FE stack (Node.js, Marko, Express, Lasso, Less).',
-      'AMP version of the page for mobile.',
+      'Ground-up conversion (Node.js, Marko, Express, Lasso, Less).',
       'Led releases and owned CI / repo hygiene for the surface.',
     ],
-    note: 'No public demo — happy to talk through it.',
   },
 ];
 
@@ -101,13 +87,7 @@ function SectionRule() {
   );
 }
 
-function EntryLink({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) {
+function EntryLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
@@ -121,13 +101,29 @@ function EntryLink({
   );
 }
 
+function OutcomeList({ outcomes }: { outcomes: string[] }) {
+  return (
+    <ul className='max-w-3xl space-y-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400'>
+      {outcomes.map((outcome) => (
+        <li key={outcome} className='flex gap-3'>
+          <span
+            className='mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500'
+            aria-hidden='true'
+          />
+          <span>{outcome}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function FeaturedWork() {
   return (
     <section
       aria-labelledby='featured-work-heading'
       className='mt-24 md:mt-32 scroll-mt-8'
     >
-      <div className='mb-12 flex items-baseline gap-4 animate-fade-up'>
+      <div className='mb-10 flex items-baseline gap-4 animate-fade-up'>
         <h2
           id='featured-work-heading'
           className='font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-4xl'
@@ -137,9 +133,8 @@ export function FeaturedWork() {
         <SectionRule />
       </div>
 
-      {/* Lead case study */}
       <article className='animate-fade-up' style={{ animationDelay: '0.08s' }}>
-        <p className='mb-3 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400'>
+        <p className='mb-2 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400'>
           <span className='font-semibold text-slate-800 dark:text-slate-200'>
             {lead.org}
           </span>
@@ -149,36 +144,19 @@ export function FeaturedWork() {
           {lead.era}
         </p>
 
-        <h3 className='font-display mb-5 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl'>
+        <h3 className='font-display mb-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl'>
           {lead.title}
         </h3>
 
-        <p className='mb-6 max-w-3xl text-lg leading-relaxed text-slate-600 dark:text-slate-300'>
-          {lead.problem}
+        <p className='mb-4 max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-300'>
+          {lead.hook}
         </p>
 
-        <ul className='mb-8 max-w-3xl space-y-3 text-base leading-relaxed text-slate-700 dark:text-slate-300'>
-          {lead.owned.map((item) => (
-            <li key={item} className='flex gap-3'>
-              <span
-                className='mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500'
-                aria-hidden='true'
-              />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className='mb-8 max-w-3xl border-l-2 border-slate-300 pl-5 dark:border-slate-600'>
-          <p className='mb-2 font-display text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200'>
-            {lead.secondAngle.title}
-          </p>
-          <p className='text-base leading-relaxed text-slate-600 dark:text-slate-300'>
-            {lead.secondAngle.body}
-          </p>
+        <div className='mb-6'>
+          <OutcomeList outcomes={lead.outcomes} />
         </div>
 
-        <dl className='mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4'>
+        <dl className='mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4'>
           {lead.metrics.map((metric) => (
             <div key={metric.label} className='min-w-0'>
               <dt className='text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400'>
@@ -191,20 +169,20 @@ export function FeaturedWork() {
           ))}
         </dl>
 
-        <p className='max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-400'>
-          {lead.closing}{' '}
+        <p className='text-sm text-slate-500 dark:text-slate-400'>
+          Details on{' '}
           <a
             href='/resume.pdf'
             className='font-medium text-slate-800 underline-offset-4 hover:underline dark:text-slate-200'
           >
             resume.pdf
           </a>
+          .
         </p>
       </article>
 
-      {/* Smaller projects — editorial list */}
-      <div className='mt-16 md:mt-20'>
-        <div className='mb-8 flex items-baseline gap-4'>
+      <div className='mt-14 md:mt-16'>
+        <div className='mb-6 flex items-baseline gap-4'>
           <h3 className='font-display text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-2xl'>
             more work
           </h3>
@@ -215,10 +193,10 @@ export function FeaturedWork() {
           {smaller.map((entry, index) => (
             <li
               key={entry.title}
-              className='animate-fade-up py-8 first:pt-0 last:pb-0'
+              className='animate-fade-up py-6 first:pt-0 last:pb-0'
               style={{ animationDelay: `${0.12 + index * 0.06}s` }}
             >
-              <p className='mb-2 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400'>
+              <p className='mb-1.5 text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400'>
                 <span className='text-slate-700 dark:text-slate-300'>{entry.org}</span>
                 <span
                   className='mx-2 text-slate-300 dark:text-slate-600'
@@ -229,27 +207,19 @@ export function FeaturedWork() {
                 {entry.era}
               </p>
 
-              <h4 className='font-display mb-3 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100'>
+              <h4 className='font-display mb-2 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100'>
                 {entry.title}
               </h4>
 
-              <p className='mb-4 max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-300'>
+              <p className='mb-3 max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-300'>
                 {entry.hook}
               </p>
 
-              <ul className='mb-4 max-w-3xl space-y-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400'>
-                {entry.outcomes.map((outcome) => (
-                  <li key={outcome} className='flex gap-3'>
-                    <span
-                      className='mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500'
-                      aria-hidden='true'
-                    />
-                    <span>{outcome}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className='mb-3'>
+                <OutcomeList outcomes={entry.outcomes} />
+              </div>
 
-              <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+              <div className='flex flex-wrap items-center gap-x-4 gap-y-1'>
                 {entry.href && entry.hrefLabel ? (
                   <EntryLink href={entry.href} label={entry.hrefLabel} />
                 ) : null}
