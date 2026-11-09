@@ -1,5 +1,5 @@
 import { SiBluesky, SiGithub } from '@icons-pack/react-simple-icons';
-import { FileText } from 'lucide-react';
+import { FileText, Mail } from 'lucide-react';
 import {
   trackLinkClick,
   type TrackableLinkId,
@@ -46,6 +46,12 @@ const socialLinks: SocialLink[] = [
     label: 'bluesky',
     href: 'https://bsky.app/profile/corley.rocks',
   },
+  {
+    type: 'icon',
+    icon: Mail,
+    label: 'email',
+    href: 'mailto:tyler@corley.rocks',
+  },
 ];
 
 /**
@@ -53,7 +59,7 @@ const socialLinks: SocialLink[] = [
  * w-32 (128px) fits the longest label ("linkedin"/"bluesky") with icon + padding.
  */
 const PILL_CLASS =
-  'group inline-flex h-11 w-32 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg';
+  'group inline-flex h-11 w-32 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 shadow-sm transition-all duration-300 hover:shadow-md motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none dark:bg-slate-900 dark:shadow-slate-800 dark:hover:shadow-lg';
 
 const ICON_SLOT =
   'inline-flex size-5 shrink-0 items-center justify-center text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white';
@@ -61,7 +67,8 @@ const ICON_SLOT =
 function SocialIcon({ social }: { social: SocialLink }) {
   if (social.type === 'icon') {
     // Solid brand marks fill the viewBox more than Lucide strokes — slight optical nudge
-    const px = social.label === 'resume' ? 18 : 16;
+    const px =
+      social.label === 'resume' || social.label === 'email' ? 18 : 16;
     return <social.icon size={px} aria-hidden='true' />;
   }
 
@@ -86,24 +93,28 @@ function SocialIcon({ social }: { social: SocialLink }) {
 export function Socials() {
   return (
     <div className='flex flex-wrap items-center justify-center gap-3 sm:gap-4'>
-      {socialLinks.map((social) => (
-        <a
-          key={social.label}
-          href={social.href}
-          target='_blank'
-          rel='noopener noreferrer'
-          onClick={() => trackLinkClick(social.label, social.href)}
-          className={PILL_CLASS}
-          aria-label={social.label}
-        >
-          <span className={ICON_SLOT}>
-            <SocialIcon social={social} />
-          </span>
-          <span className='translate-y-px text-sm font-medium leading-none text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white'>
-            {social.label}
-          </span>
-        </a>
-      ))}
+      {socialLinks.map((social) => {
+        const isMailto = social.href.startsWith('mailto:');
+        return (
+          <a
+            key={social.label}
+            href={social.href}
+            {...(isMailto
+              ? {}
+              : { target: '_blank', rel: 'noopener noreferrer' })}
+            onClick={() => trackLinkClick(social.label, social.href)}
+            className={PILL_CLASS}
+            aria-label={social.label}
+          >
+            <span className={ICON_SLOT}>
+              <SocialIcon social={social} />
+            </span>
+            <span className='translate-y-px text-sm font-medium leading-none text-slate-700 transition-colors group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white'>
+              {social.label}
+            </span>
+          </a>
+        );
+      })}
     </div>
   );
 }
