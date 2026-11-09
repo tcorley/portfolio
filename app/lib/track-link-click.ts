@@ -3,7 +3,12 @@
  * Does not block navigation; prefers sendBeacon, falls back to keepalive fetch.
  */
 
-export type TrackableLinkId = "resume" | "github" | "linkedin" | "bluesky";
+export type TrackableLinkId =
+  | "resume"
+  | "github"
+  | "linkedin"
+  | "bluesky"
+  | "email";
 
 export function trackLinkClick(linkId: TrackableLinkId, href: string): void {
   const payload = JSON.stringify({

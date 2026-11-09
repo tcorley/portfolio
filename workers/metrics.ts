@@ -4,7 +4,7 @@
  * Event schema (ordered; keep stable for SQL aliases):
  *   blob1  event_type   — "resume_open" | "link_click"
  *   blob2  target       — path ("/resume.pdf") or outbound href
- *   blob3  link_id      — allowlisted id ("resume"|"github"|"linkedin"|"bluesky") or ""
+ *   blob3  link_id      — allowlisted id ("resume"|"github"|"linkedin"|"bluesky"|"email") or ""
  *   blob4  country      — CF colo country (ISO-3166-1 alpha-2) or "XX"
  *   double1 count       — always 1
  *   index1  hostname    — request host (sampling key)
@@ -15,6 +15,7 @@ export const ALLOWED_LINK_IDS = [
   "github",
   "linkedin",
   "bluesky",
+  "email",
 ] as const;
 
 export type LinkId = (typeof ALLOWED_LINK_IDS)[number];
@@ -99,17 +100,20 @@ export async function handleMetricsBeacon(
     return new Response("Bad Request", { status: 400 });
   }
 
-  // Only allow absolute http(s) or same-origin relative paths — no javascript: etc.
+  // Only allow absolute http(s), mailto, or same-origin relative paths — no javascript: etc.
   let target: string;
   try {
     const resolved = new URL(body.href, request.url);
-    if (resolved.protocol !== "http:" && resolved.protocol !== "https:") {
+    if (resolved.protocol === "mailto:") {
+      target = resolved.href;
+    } else if (resolved.protocol !== "http:" && resolved.protocol !== "https:") {
       return new Response("Bad Request", { status: 400 });
+    } else {
+      target =
+        resolved.origin === new URL(request.url).origin
+          ? `${resolved.pathname}${resolved.search}`
+          : resolved.href;
     }
-    target =
-      resolved.origin === new URL(request.url).origin
-        ? `${resolved.pathname}${resolved.search}`
-        : resolved.href;
   } catch {
     return new Response("Bad Request", { status: 400 });
   }
