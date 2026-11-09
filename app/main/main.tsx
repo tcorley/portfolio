@@ -6,9 +6,9 @@ import { Socials } from '../components/socials';
 
 export function Main() {
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-gray-900 dark:via-gray-950 dark:to-gray-950 transition-colors duration-500 motion-reduce:transition-none'>
-      <div className='max-w-6xl mx-auto px-6 py-16 md:py-24'>
-        <header className='mb-12 md:mb-16 text-center'>
+    <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-gray-900 dark:via-gray-950 dark:to-gray-950 transition-colors duration-500 motion-reduce:transition-none'>
+      <div className='max-w-6xl mx-auto flex flex-1 flex-col w-full px-6 py-16 md:py-24'>
+        <header className='flex-1 text-center'>
           <div className='flex flex-col items-center gap-8'>
             <div className='max-w-4xl'>
               <div className='flex flex-row justify-between'>
