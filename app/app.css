@@ -44,3 +44,647 @@ body {
     animation: none !important;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Dual-screen / foldable hero (Surface Duo + similar)                        */
+/* Prefers Viewport Segments API; falls back to legacy spanning / fold-*.     */
+/* QA preview (no device required):                                           */
+/*   ?duo-posture=single | dual-portrait | dual-landscape                     */
+/* -------------------------------------------------------------------------- */
+
+.hero-hinge {
+  display: none;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* --- Short viewports: tighten vertical rhythm so avatar stays in view ----- */
+@media (max-height: 920px) {
+  .hero-shell {
+    padding-block: 1.25rem;
+  }
+
+  .hero-layout {
+    gap: 1rem;
+  }
+
+  .hero-brand > * {
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.75rem, 5.5vw, 2.75rem);
+    line-height: 1.15;
+  }
+
+  .hero-bio {
+    margin-bottom: 1rem;
+    font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+    line-height: 1.45;
+  }
+
+  .hero-avatar-img {
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+}
+
+/* Duo-class / tall-phone single pane: icon + copy share the first viewport */
+@media (max-height: 900px) and (max-width: 600px) {
+  .hero-page {
+    min-height: 100dvh;
+  }
+
+  .hero-shell {
+    box-sizing: border-box;
+    min-height: 100dvh;
+    max-width: 100%;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-header,
+  .hero-layout {
+    width: 100%;
+  }
+
+  .hero-layout {
+    gap: 0.75rem;
+  }
+
+  .hero-brand > * {
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.55rem, 7vw, 2.15rem);
+  }
+
+  .hero-bio {
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .hero-avatar-img {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .hero-socials a {
+    height: 2.5rem;
+    width: 7.25rem;
+  }
+}
+
+html[data-duo-posture='single'] .hero-page {
+  min-height: 100dvh;
+}
+
+html[data-duo-posture='single'] .hero-shell {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  max-width: 36rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+html[data-duo-posture='single'] .hero-header,
+html[data-duo-posture='single'] .hero-layout {
+  width: 100%;
+}
+
+html[data-duo-posture='single'] .hero-layout {
+  gap: 0.75rem;
+}
+
+html[data-duo-posture='single'] .hero-brand > * {
+  margin-bottom: 0.5rem;
+}
+
+html[data-duo-posture='single'] .hero-title {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.55rem, 7vw, 2.15rem);
+  line-height: 1.15;
+}
+
+html[data-duo-posture='single'] .hero-bio {
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+html[data-duo-posture='single'] .hero-avatar-img {
+  width: 6.5rem;
+  height: 6.5rem;
+}
+
+html[data-duo-posture='single'] .hero-socials a {
+  height: 2.5rem;
+  width: 7.25rem;
+}
+
+/* --- Dual portrait / side-by-side (vertical hinge) ------------------------ */
+@media (horizontal-viewport-segments: 2) {
+  .hero-page {
+    min-height: 100dvh;
+  }
+
+  .hero-shell {
+    box-sizing: border-box;
+    max-width: none;
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero-header {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-layout {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-copy {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    width: env(viewport-segment-width 0 0, 50%);
+    height: 100%;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+  }
+
+  .hero-hinge {
+    display: block;
+    width: calc(
+      env(viewport-segment-left 1 0, 0px) - env(viewport-segment-right 0 0, 0px)
+    );
+    height: 100%;
+  }
+
+  .hero-avatar {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    width: env(viewport-segment-width 1 0, 50%);
+    height: 100%;
+    padding: 1.25rem;
+  }
+
+  .hero-avatar-img {
+    width: min(16rem, 70%);
+    height: auto;
+    max-height: min(16rem, 70dvh);
+  }
+
+  .hero-title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.65rem, 3.4vw, 2.75rem);
+    line-height: 1.15;
+  }
+
+  .hero-bio {
+    margin-bottom: 1rem;
+    font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+    line-height: 1.45;
+  }
+
+  .hero-brand > * {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Legacy spanning API (older Edge / Duo builds) */
+@media (spanning: single-fold-vertical) {
+  .hero-page {
+    min-height: 100dvh;
+  }
+
+  .hero-shell {
+    box-sizing: border-box;
+    max-width: none;
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero-header {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-layout {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-copy {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    width: env(fold-left, 50%);
+    height: 100%;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .hero-hinge {
+    display: block;
+    width: env(fold-width, 0px);
+    height: 100%;
+  }
+
+  .hero-avatar {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1.25rem;
+  }
+
+  .hero-avatar-img {
+    width: min(16rem, 70%);
+    height: auto;
+    max-height: min(16rem, 70dvh);
+  }
+
+  .hero-title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.65rem, 3.4vw, 2.75rem);
+    line-height: 1.15;
+  }
+
+  .hero-bio {
+    margin-bottom: 1rem;
+    font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+    line-height: 1.45;
+  }
+}
+
+/* QA / screenshot preview for dual portrait without foldable hardware */
+html[data-duo-posture='dual-portrait'] .hero-page {
+  min-height: 100dvh;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-shell {
+  box-sizing: border-box;
+  max-width: none;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-header {
+  width: 100%;
+  height: 100%;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-layout {
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-copy {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  width: calc(50% - 0.875rem);
+  height: 100%;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-hinge {
+  display: block;
+  width: 1.75rem;
+  height: 100%;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-avatar {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 1.25rem;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-avatar-img {
+  width: min(16rem, 70%);
+  height: auto;
+  max-height: min(16rem, 70dvh);
+}
+
+html[data-duo-posture='dual-portrait'] .hero-title {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.65rem, 3.4vw, 2.75rem);
+  line-height: 1.15;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-bio {
+  margin-bottom: 1rem;
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+  line-height: 1.45;
+}
+
+html[data-duo-posture='dual-portrait'] .hero-brand > * {
+  margin-bottom: 0.75rem;
+}
+
+/* --- Dual landscape / stacked (horizontal hinge) -------------------------- */
+@media (vertical-viewport-segments: 2) {
+  .hero-page {
+    min-height: 100dvh;
+  }
+
+  .hero-shell {
+    box-sizing: border-box;
+    max-width: none;
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero-header {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-layout {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-copy {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    width: 100%;
+    height: env(viewport-segment-height 0 0, 50%);
+    padding: 1rem 1.25rem;
+    text-align: center;
+  }
+
+  .hero-hinge {
+    display: block;
+    width: 100%;
+    height: calc(
+      env(viewport-segment-top 0 1, 0px) - env(viewport-segment-bottom 0 0, 0px)
+    );
+  }
+
+  .hero-avatar {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: env(viewport-segment-height 0 1, 50%);
+    padding: 1rem;
+  }
+
+  .hero-avatar-img {
+    width: min(14rem, 55%);
+    height: auto;
+    max-height: min(14rem, 40dvh);
+  }
+
+  .hero-title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.5rem, 5vw, 2.35rem);
+    line-height: 1.15;
+  }
+
+  .hero-bio {
+    margin-bottom: 0.75rem;
+    font-size: clamp(0.9rem, 2.4vw, 1.1rem);
+    line-height: 1.4;
+  }
+
+  .hero-brand > * {
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-socials a {
+    height: 2.5rem;
+    width: 7.25rem;
+  }
+}
+
+@media (spanning: single-fold-horizontal) {
+  .hero-page {
+    min-height: 100dvh;
+  }
+
+  .hero-shell {
+    box-sizing: border-box;
+    max-width: none;
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero-header {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-copy {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    width: 100%;
+    height: env(fold-top, 50%);
+    padding: 1rem 1.25rem;
+  }
+
+  .hero-hinge {
+    display: block;
+    width: 100%;
+    height: env(fold-height, 0px);
+  }
+
+  .hero-avatar {
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .hero-avatar-img {
+    width: min(14rem, 55%);
+    height: auto;
+    max-height: min(14rem, 40dvh);
+  }
+
+  .hero-title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.5rem, 5vw, 2.35rem);
+    line-height: 1.15;
+  }
+
+  .hero-bio {
+    margin-bottom: 0.75rem;
+    font-size: clamp(0.9rem, 2.4vw, 1.1rem);
+    line-height: 1.4;
+  }
+
+  .hero-socials a {
+    height: 2.5rem;
+    width: 7.25rem;
+  }
+}
+
+html[data-duo-posture='dual-landscape'] .hero-page {
+  min-height: 100dvh;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-shell {
+  box-sizing: border-box;
+  max-width: none;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-header {
+  width: 100%;
+  height: 100%;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-layout {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-copy {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  width: 100%;
+  height: calc(50% - 0.75rem);
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-hinge {
+  display: block;
+  width: 100%;
+  height: 1.5rem;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-avatar {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-avatar-img {
+  width: min(14rem, 55%);
+  height: auto;
+  max-height: min(14rem, 40dvh);
+}
+
+html[data-duo-posture='dual-landscape'] .hero-title {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.35rem);
+  line-height: 1.15;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-bio {
+  margin-bottom: 0.75rem;
+  font-size: clamp(0.9rem, 2.4vw, 1.1rem);
+  line-height: 1.4;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-brand > * {
+  margin-bottom: 0.5rem;
+}
+
+html[data-duo-posture='dual-landscape'] .hero-socials a {
+  height: 2.5rem;
+  width: 7.25rem;
+}
